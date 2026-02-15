@@ -1,0 +1,133 @@
+name: settlement-e2e
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "sql/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/settlement-e2e.yml"
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PORT: ${{ vars.WMS_API_PORT || 3100 }}
+      DB_HOST: ${{ vars.CI_DB_HOST || '127.0.0.1' }}
+      DB_PORT: ${{ vars.CI_DB_PORT || 3306 }}
+      DB_USER: ${{ vars.CI_DB_USER || 'root' }}
+      DB_PASSWORD: ${{ secrets.CI_DB_PASSWORD || 'root' }}
+      DB_NAME: ${{ vars.CI_DB_NAME || 'wms_test' }}
+      JWT_SECRET: ${{ secrets.CI_JWT_SECRET || 'ci-secret' }}
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.CI_DB_PASSWORD || 'root' }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -p${{ secrets.CI_DB_PASSWORD || 'root' }}"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    defaults:
+      run:
+        working-directory: wms-api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: wms-api/package-lock.json
+
+      - name: Install mysql client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Init database schema and seed
+        run: |
+          mysql -h"${DB_HOST}" -P"${DB_PORT}" -u"${DB_USER}" -p"${DB_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          mysql -h"${DB_HOST}" -P"${DB_PORT}" -u"${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" < sql/schema_v1.sql
+          mysql -h"${DB_HOST}" -P"${DB_PORT}" -u"${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" < sql/seed_master_min.sql
+
+      - name: Start API server
+        run: |
+          node src/server.js > /tmp/wms-api.log 2>&1 &
+          echo $! > /tmp/wms-api.pid
+          for i in $(seq 1 60); do
+            if curl -fsS "http://localhost:${PORT}/health" >/dev/null && curl -fsS "http://localhost:${PORT}/health/db" >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server failed to start"
+          cat /tmp/wms-api.log || true
+          exit 1
+
+      - name: Run settlement e2e flow (with retry)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $attempts = 3
+          $baseUrl = "http://localhost:${{ env.PORT }}"
+          $logPath = "/tmp/settlement-e2e.log"
+          if (Test-Path $logPath) { Remove-Item $logPath -Force }
+          for ($i = 1; $i -le $attempts; $i++) {
+            try {
+              "=== ATTEMPT $i/$attempts ===" | Tee-Object -FilePath $logPath -Append
+              ./scripts/run_settlement_invoice_flow.ps1 -StartServerIfDown:$false -BaseUrl $baseUrl 2>&1 | Tee-Object -FilePath $logPath -Append
+              "E2E_RESULT=PASS (attempt=$i)" | Tee-Object -FilePath $logPath -Append
+              exit 0
+            } catch {
+              "E2E_RESULT=FAIL (attempt=$i) message=$($_.Exception.Message)" | Tee-Object -FilePath $logPath -Append
+              if ($i -eq $attempts) {
+                throw
+              }
+              Start-Sleep -Seconds 5
+            }
+          }
+
+      - name: Run additional regression scripts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $baseUrl = "http://localhost:${{ env.PORT }}"
+          ./scripts/run_settlement_reopen_reject_flow.ps1 -StartServerIfDown:$false -BaseUrl $baseUrl
+          ./scripts/run_invoice_reuse_flow.ps1 -StartServerIfDown:$false -BaseUrl $baseUrl -StrictFirstNew:$true
+          ./scripts/run_outbound_insufficient_stock.ps1 -StartServerIfDown:$false -BaseUrl $baseUrl
+
+      - name: Print server log
+        if: always()
+        run: cat /tmp/wms-api.log || true
+
+      - name: Upload e2e logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: settlement-e2e-logs
+          path: |
+            /tmp/wms-api.log
+            /tmp/settlement-e2e.log
+          if-no-files-found: warn
+
+      - name: Stop API server
+        if: always()
+        run: |
+          if [ -f /tmp/wms-api.pid ]; then
+            kill $(cat /tmp/wms-api.pid) || true
+          fi
