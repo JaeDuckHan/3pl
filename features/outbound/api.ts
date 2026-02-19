@@ -1,4 +1,4 @@
-import { outboundOrdersMock } from "@/features/outbound/mock";
+import { getOutboundByNo, outboundOrdersMock } from "@/features/outbounds/mock";
 import type {
   OutboundAction,
   OutboundBox,
@@ -254,7 +254,7 @@ function mapOutboundOrder(
 ): OutboundOrder {
   const totalQty = items.reduce((acc, item) => acc + item.requested_qty, 0);
   return {
-    id: String(order.id),
+    id: String(order.outbound_no),
     outbound_no: order.outbound_no,
     client: clientName || `Client #${order.client_id}`,
     eta_date: order.order_date,
@@ -332,15 +332,17 @@ export async function getOutboundOrders(query?: OutboundListQuery, options?: Req
   return applyListFilter(mapped, query);
 }
 
-export async function getOutboundOrderById(id: string, options?: RequestOptions): Promise<OutboundOrder | null> {
+export async function getOutboundOrderByNo(outboundNo: string, options?: RequestOptions): Promise<OutboundOrder | null> {
   if (USE_MOCK) {
     await delay(LATENCY_MS);
-    const order = mockDb.find((item) => item.id === id);
+    const order = mockDb.find((item) => item.outbound_no === outboundNo) ?? getOutboundByNo(outboundNo);
     return order ? cloneOrder(order) : null;
   }
 
   try {
-    const rawOrder = await requestJson<RawOutboundOrder>(`/outbound-orders/${id}`, undefined, options);
+    const rawOrders = await requestJson<RawOutboundOrder[]>("/outbound-orders", undefined, options);
+    const rawOrder = rawOrders.find((order) => order.outbound_no === outboundNo);
+    if (!rawOrder) return null;
 
     const [clients, rawItems, products, lots, balances] = await Promise.all([
       requestJson<RawClient[]>("/clients", undefined, options),
@@ -378,13 +380,13 @@ export async function getOutboundOrderById(id: string, options?: RequestOptions)
 }
 
 export async function transitionOutboundStatus(
-  id: string,
+  outboundNo: string,
   action: OutboundAction,
   options?: RequestOptions
 ): Promise<OutboundOrder> {
   if (USE_MOCK) {
     await delay(LATENCY_MS);
-    const idx = mockDb.findIndex((item) => item.id === id);
+    const idx = mockDb.findIndex((item) => item.outbound_no === outboundNo);
     if (idx < 0) throw new ApiError("Outbound order not found", 404);
     const current = mockDb[idx];
     const updated: OutboundOrder = {
@@ -405,13 +407,18 @@ export async function transitionOutboundStatus(
     return cloneOrder(updated);
   }
 
-  const current = await requestJson<RawOutboundOrder>(`/outbound-orders/${id}`, undefined, options);
+  const current = await (async () => {
+    const rawOrders = await requestJson<RawOutboundOrder[]>("/outbound-orders", undefined, options);
+    const found = rawOrders.find((order) => order.outbound_no === outboundNo);
+    if (!found) throw new ApiError("Outbound order not found", 404);
+    return found;
+  })();
   const nextStatus: OutboundStatus =
     action === "allocate" ? "allocated" : action === "pack" ? "packed" : "shipped";
   const nowIso = new Date().toISOString();
 
   await requestJson<RawOutboundOrder>(
-    `/outbound-orders/${id}`,
+    `/outbound-orders/${current.id}`,
     {
       method: "PUT",
       body: JSON.stringify({
@@ -431,7 +438,7 @@ export async function transitionOutboundStatus(
     options
   );
 
-  const updated = await getOutboundOrderById(id, options);
+  const updated = await getOutboundOrderByNo(current.outbound_no, options);
   if (!updated) throw new ApiError("Outbound order not found", 404);
   return updated;
 }
@@ -444,14 +451,20 @@ export type AddBoxPayload = {
 };
 
 export async function addOutboundBox(
-  id: string,
+  outboundNo: string,
   payload: AddBoxPayload,
   options?: RequestOptions
 ): Promise<OutboundBox[]> {
   if (!USE_MOCK) {
+    const current = await (async () => {
+      const rawOrders = await requestJson<RawOutboundOrder[]>("/outbound-orders", undefined, options);
+      const found = rawOrders.find((order) => order.outbound_no === outboundNo);
+      if (!found) throw new ApiError("Outbound order not found", 404);
+      return found;
+    })();
     try {
       await requestJson<RawOutboundBox>(
-        `/outbound-orders/${id}/boxes`,
+        `/outbound-orders/${current.id}/boxes`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -470,12 +483,12 @@ export async function addOutboundBox(
       throw error;
     }
 
-    const boxes = await requestJson<RawOutboundBox[]>(`/outbound-orders/${id}/boxes`, undefined, options);
+    const boxes = await requestJson<RawOutboundBox[]>(`/outbound-orders/${current.id}/boxes`, undefined, options);
     return mapBoxes(boxes, null);
   }
 
   await delay(LATENCY_MS);
-  const idx = mockDb.findIndex((item) => item.id === id);
+  const idx = mockDb.findIndex((item) => item.outbound_no === outboundNo);
   if (idx < 0) throw new ApiError("Outbound order not found", 404);
 
   const nextBox: OutboundBox = { id: `BOX-${Date.now()}`, ...payload };

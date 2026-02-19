@@ -57,7 +57,7 @@ export default async function OutboundsPage({
             key: "outbound_no",
             label: "Outbound No",
             render: (row) => (
-              <Link href={`/outbounds/${row.id}`} className="font-medium text-slate-900 hover:underline">
+              <Link href={`/outbounds/${encodeURIComponent(row.outbound_no)}`} className="font-medium text-slate-900 hover:underline">
                 {row.outbound_no}
               </Link>
             ),

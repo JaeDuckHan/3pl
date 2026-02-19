@@ -68,7 +68,7 @@ export default async function InboundsPage({
             key: "inbound_no",
             label: "Inbound No",
             render: (row) => (
-              <Link href={`/inbounds/${row.id}`} className="font-medium text-slate-900 hover:underline">
+              <Link href={`/inbounds/${encodeURIComponent(row.inbound_no)}`} className="font-medium text-slate-900 hover:underline">
                 {row.inbound_no}
               </Link>
             ),

@@ -1,4 +1,4 @@
-import { inboundOrdersMock } from "@/features/inbound/mock";
+import { getInboundByNo, inboundOrdersMock } from "@/features/inbound/mock";
 import type {
   InboundAction,
   InboundItem,
@@ -216,14 +216,16 @@ export async function getInboundOrders(query?: InboundListQuery, options?: Reque
   return applyListFilter(mapped, query);
 }
 
-export async function getInboundOrderById(id: string, options?: RequestOptions): Promise<InboundOrder | null> {
+export async function getInboundOrderByNo(inboundNo: string, options?: RequestOptions): Promise<InboundOrder | null> {
   if (USE_MOCK) {
     await delay(LATENCY_MS);
-    const order = mockDb.find((item) => item.id === id);
+    const order = mockDb.find((item) => item.inbound_no === inboundNo) ?? getInboundByNo(inboundNo);
     return order ? cloneOrder(order) : null;
   }
   try {
-    const rawOrder = await requestJson<RawInboundOrder>(`/inbound-orders/${id}`, undefined, options);
+    const rawOrders = await requestJson<RawInboundOrder[]>("/inbound-orders", undefined, options);
+    const rawOrder = rawOrders.find((order) => order.inbound_no === inboundNo);
+    if (!rawOrder) return null;
     const [clients, rawItems, products, lots] = await Promise.all([
       requestJson<RawClient[]>("/clients", undefined, options),
       requestJson<RawInboundItem[]>(`/inbound-items?inbound_order_id=${rawOrder.id}`, undefined, options),
@@ -240,13 +242,13 @@ export async function getInboundOrderById(id: string, options?: RequestOptions):
 }
 
 export async function transitionInboundStatus(
-  id: string,
+  inboundNo: string,
   action: InboundAction,
   options?: RequestOptions
 ): Promise<InboundOrder> {
   if (USE_MOCK) {
     await delay(LATENCY_MS);
-    const idx = mockDb.findIndex((item) => item.id === id);
+    const idx = mockDb.findIndex((item) => item.inbound_no === inboundNo);
     if (idx < 0) throw new ApiError("Inbound order not found", 404);
     const current = mockDb[idx];
     const updated: InboundOrder = {
@@ -267,13 +269,18 @@ export async function transitionInboundStatus(
     return cloneOrder(updated);
   }
 
-  const current = await requestJson<RawInboundOrder>(`/inbound-orders/${id}`, undefined, options);
+  const current = await (async () => {
+    const rawOrders = await requestJson<RawInboundOrder[]>("/inbound-orders", undefined, options);
+    const found = rawOrders.find((order) => order.inbound_no === inboundNo);
+    if (!found) throw new ApiError("Inbound order not found", 404);
+    return found;
+  })();
   const nextStatus: InboundStatus =
     action === "submit" ? "submitted" : action === "arrive" ? "arrived" : "received";
   const nowIso = new Date().toISOString();
 
   await requestJson<RawInboundOrder>(
-    `/inbound-orders/${id}`,
+    `/inbound-orders/${current.id}`,
     {
       method: "PUT",
       body: JSON.stringify({
@@ -290,7 +297,7 @@ export async function transitionInboundStatus(
     options
   );
 
-  const updated = await getInboundOrderById(id, options);
+  const updated = await getInboundOrderByNo(current.inbound_no, options);
   if (!updated) throw new ApiError("Inbound order not found", 404);
   return updated;
 }

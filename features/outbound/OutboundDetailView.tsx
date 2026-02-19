@@ -90,7 +90,7 @@ export function OutboundDetailView({
 
     setLoading(true);
     try {
-      const updated = await transitionOutboundStatus(order.id, pendingAction);
+      const updated = await transitionOutboundStatus(order.outbound_no, pendingAction);
       setOrder(updated);
       setConfirmOpen(false);
       pushToast({
@@ -162,7 +162,7 @@ export function OutboundDetailView({
     setFormError(null);
     setLoading(true);
     try {
-      const boxes = await addOutboundBox(order.id, {
+      const boxes = await addOutboundBox(order.outbound_no, {
         box_no: boxNo.trim(),
         courier: courier.trim(),
         tracking_no: trackingNo.trim(),

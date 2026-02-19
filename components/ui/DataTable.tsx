@@ -12,10 +12,12 @@ export function DataTable<T>({
   columns,
   rows,
   emptyText = "No data",
+  rowClassName,
 }: {
   columns: Column<T>[];
   rows: T[];
   emptyText?: string;
+  rowClassName?: string;
 }) {
   return (
     <div className="overflow-x-auto rounded-xl border bg-white">
@@ -38,7 +40,7 @@ export function DataTable<T>({
             </TableRow>
           ) : (
             rows.map((row, index) => (
-              <TableRow key={index}>
+              <TableRow key={index} className={rowClassName}>
                 {columns.map((column) => (
                   <TableCell key={column.key} className={column.className}>
                     {column.render(row)}

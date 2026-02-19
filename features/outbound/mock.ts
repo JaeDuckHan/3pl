@@ -1,4 +1,4 @@
-import { OutboundOrder } from "@/features/outbound/types";
+import type { OutboundOrder } from "@/features/outbound/types";
 
 export const outboundOrdersMock: OutboundOrder[] = [
   {
@@ -110,3 +110,7 @@ export const outboundOrdersMock: OutboundOrder[] = [
     ],
   },
 ];
+
+export function getOutboundByNo(outboundNo: string) {
+  return outboundOrdersMock.find((item) => item.outbound_no === outboundNo) ?? null;
+}

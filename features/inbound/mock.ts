@@ -72,3 +72,7 @@ export const inboundOrdersMock: InboundOrder[] = [
     ],
   },
 ];
+
+export function getInboundByNo(inboundNo: string) {
+  return inboundOrdersMock.find((item) => item.inbound_no === inboundNo) ?? null;
+}

@@ -71,7 +71,7 @@ export function InboundDetailView({ order: initialOrder, initialTab }: { order: 
     if (!currentAction) return;
     setLoading(true);
     try {
-      const updated = await transitionInboundStatus(order.id, currentAction);
+      const updated = await transitionInboundStatus(order.inbound_no, currentAction);
       setOrder(updated);
       pushToast({
         title: `${actionLabel(currentAction)} completed`,
