@@ -19,6 +19,7 @@ const returnItemsRouter = require("./routes/returnItems");
 const stocksRouter = require("./routes/stocks");
 const serviceEventsRouter = require("./routes/serviceEvents");
 const settlementsRouter = require("./routes/settlements");
+const billingEngineRouter = require("./routes/billingEngine");
 const openapi = require("./openapi.json");
 
 dotenv.config();
@@ -82,6 +83,7 @@ app.use("/return-items", returnItemsRouter);
 app.use("/", stocksRouter);
 app.use("/", serviceEventsRouter);
 app.use("/", settlementsRouter);
+app.use("/", billingEngineRouter);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
 
 app.use((_req, res) => {
