@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "3pl-web",
-      cwd: "/var/www/3pl",
+      cwd: "/var/www/3pl/apps/web",
       script: "npm",
       args: "run start -- -p 3000",
       env: {
