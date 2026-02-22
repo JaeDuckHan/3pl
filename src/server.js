@@ -20,6 +20,8 @@ const stocksRouter = require("./routes/stocks");
 const serviceEventsRouter = require("./routes/serviceEvents");
 const settlementsRouter = require("./routes/settlements");
 const billingEngineRouter = require("./routes/billingEngine");
+const { router: dashboardRouter } = require("./routes/dashboard");
+const { startStorageSnapshotSchedule } = require("./jobs/storageSnapshots");
 const openapi = require("./openapi.json");
 
 dotenv.config();
@@ -28,6 +30,16 @@ const app = express();
 const port = Number(process.env.PORT || 3100);
 app.use(express.json());
 app.use("/auth", authRouter);
+
+function isPublicPath(pathname) {
+  return (
+    pathname === "/health" ||
+    pathname === "/health/db" ||
+    pathname === "/auth/login" ||
+    pathname === "/auth/login/" ||
+    pathname.startsWith("/docs")
+  );
+}
 
 app.get("/health", (_req, res) => {
   res.json({
@@ -54,16 +66,14 @@ app.get("/health/db", async (_req, res) => {
 });
 
 app.use((req, res, next) => {
-  const publicPaths = ["/health", "/health/db", "/auth/login"];
-  if (publicPaths.includes(req.path) || req.path.startsWith("/docs")) {
+  if (isPublicPath(req.path)) {
     return next();
   }
   return authenticateToken(req, res, next);
 });
 
 app.use((req, res, next) => {
-  const bypassPaths = ["/health", "/health/db", "/auth/login"];
-  if (bypassPaths.includes(req.path) || req.path.startsWith("/docs")) {
+  if (isPublicPath(req.path)) {
     return next();
   }
   return enforceWriteAccess(req, res, next);
@@ -84,6 +94,7 @@ app.use("/", stocksRouter);
 app.use("/", serviceEventsRouter);
 app.use("/", settlementsRouter);
 app.use("/", billingEngineRouter);
+app.use("/api/dashboard", dashboardRouter);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapi));
 
 app.use((_req, res) => {
@@ -103,5 +114,6 @@ app.use((error, _req, res, _next) => {
 });
 
 app.listen(port, () => {
+  startStorageSnapshotSchedule();
   console.log(`wms-api listening on http://localhost:${port}`);
 });
