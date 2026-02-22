@@ -28,6 +28,7 @@ import { captureElementToPng } from "@/features/dashboard/capture";
 import { normalizeDate, normalizeInt } from "@/features/dashboard/input";
 import { useDashboardToast } from "@/features/dashboard/toast";
 import { useDemoMode } from "@/features/dashboard/useDemoMode";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 import {
   compareNumber,
   copyToClipboard,
@@ -122,6 +123,7 @@ function dateByOffset(offset: number) {
 }
 
 export function StorageTrendPage() {
+  const { t } = useI18n();
   const { toastError, toastSuccess } = useDashboardToast();
   const { demoMode, ready: demoReady, toggleDemoMode } = useDemoMode();
   const router = useRouter();
@@ -429,20 +431,20 @@ export function StorageTrendPage() {
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Storage Trend" }]}
-        title="Storage Trend"
-        description="Trend of storage usage by period."
+        breadcrumbs={[{ label: t("nav.dashboard"), href: "/dashboard" }, { label: t("trend.title") }]}
+        title={t("trend.title")}
+        description={t("trend.desc")}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {demoReady ? <DemoModeToggle demoMode={demoMode} onToggle={toggleDemoMode} /> : null}
             {demoMode && process.env.NODE_ENV !== "production" ? (
               <Button type="button" variant="secondary" onClick={() => void generateLast7Days()} disabled={generatingSnapshots}>
-                {generatingSnapshots ? "Generating..." : "Generate demo snapshots (last 7 days)"}
+                {generatingSnapshots ? t("demo.generating") : t("demo.generateLast7days")}
               </Button>
             ) : null}
             <Button type="button" variant="secondary" onClick={() => void savePng()} disabled={loading}>
               <ImageDown className="h-4 w-4" />
-              Save PNG
+              {t("common.savePng")}
             </Button>
           </div>
         }
@@ -476,7 +478,7 @@ export function StorageTrendPage() {
           <option value="month">month</option>
         </select>
         <Button type="button" variant="secondary" onClick={applyLast7DaysPreset} disabled={loading}>
-          Last 7 days
+          {t("trend.last7days")}
         </Button>
       </FilterBar>
 
@@ -565,11 +567,11 @@ export function StorageTrendPage() {
             />
             <Button type="button" variant="secondary" onClick={exportCsv} disabled={!tableRows.length}>
               <Download className="h-4 w-4" />
-              CSV export
+              {t("common.downloadCsv")}
             </Button>
             <Button type="button" variant="secondary" onClick={() => void copyTable()} disabled={!tableRows.length}>
               <Copy className="h-4 w-4" />
-              Copy table
+              {t("common.copyTable")}
             </Button>
           </div>
         </CardHeader>

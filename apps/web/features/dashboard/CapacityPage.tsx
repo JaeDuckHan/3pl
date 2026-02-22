@@ -28,6 +28,7 @@ import { captureElementToPng } from "@/features/dashboard/capture";
 import { normalizeDate, normalizeInt } from "@/features/dashboard/input";
 import { useDashboardToast } from "@/features/dashboard/toast";
 import { useDemoMode } from "@/features/dashboard/useDemoMode";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 import {
   compareNumber,
   copyToClipboard,
@@ -119,6 +120,7 @@ const capacityColumns = [
 ] satisfies CsvColumn<Record<string, unknown>>[];
 
 export function CapacityPage() {
+  const { t } = useI18n();
   const { toastError, toastSuccess } = useDashboardToast();
   const { demoMode, ready: demoReady, toggleDemoMode } = useDemoMode();
   const router = useRouter();
@@ -354,16 +356,16 @@ export function CapacityPage() {
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Capacity" }]}
-        title="Warehouse Capacity"
-        description="Usage monitoring with risk alerts."
+        breadcrumbs={[{ label: t("nav.dashboard"), href: "/dashboard" }, { label: t("capacity.title") }]}
+        title={t("capacity.title")}
+        description={t("capacity.desc")}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {demoReady ? <DemoModeToggle demoMode={demoMode} onToggle={toggleDemoMode} /> : null}
             {demoMode ? <GenerateSnapshotsButton warehouseId={warehouseId ? Number(warehouseId) : undefined} /> : null}
             <Button type="button" variant="secondary" onClick={() => void savePng()} disabled={loading}>
               <ImageDown className="h-4 w-4" />
-              Save PNG
+              {t("common.savePng")}
             </Button>
           </div>
         }
@@ -469,11 +471,11 @@ export function CapacityPage() {
             />
             <Button type="button" variant="secondary" onClick={exportCsv} disabled={!tableRows.length}>
               <Download className="h-4 w-4" />
-              CSV export
+              {t("common.downloadCsv")}
             </Button>
             <Button type="button" variant="secondary" onClick={() => void copyTable()} disabled={!tableRows.length}>
               <Copy className="h-4 w-4" />
-              Copy table
+              {t("common.copyTable")}
             </Button>
           </div>
         </CardHeader>

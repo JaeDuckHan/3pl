@@ -1,0 +1,71 @@
+export const messagesKo = {
+  nav: {
+    inbounds: "입고",
+    outbounds: "출고",
+    inventory: "재고",
+    billing: "정산",
+    dashboard: "대시보드",
+    settings: "설정",
+    trend: "보관 추이",
+    capacity: "적재율",
+  },
+  tabs: {
+    overview: "개요",
+    storageTrend: "보관 추이",
+    storageBilling: "보관 요금",
+    capacity: "적재율",
+  },
+  common: {
+    load: "조회",
+    loading: "불러오는 중...",
+    reset: "초기화",
+    copy: "복사",
+    copyJson: "JSON 복사",
+    copyTable: "표 복사",
+    downloadCsv: "CSV 다운로드",
+    savePng: "PNG 저장",
+    demoMode: "데모 모드",
+  },
+  sidebar: {
+    product: "Kowinsblue 3PL",
+    console: "WMS 콘솔",
+    logout: "로그아웃",
+    language: "언어",
+  },
+  dashboard: {
+    title: "대시보드",
+    desc: "데모 가능한 보관 대시보드 모듈입니다.",
+    trendCardDesc: "일/주/월 단위 CBM/팔레트/SKU 합계를 확인합니다.",
+    billingCardDesc: "창고/화주별 월 보관요금을 미리 계산합니다.",
+    capacityCardDesc: "창고 사용률과 위험 알림을 확인합니다.",
+  },
+  trend: {
+    title: "보관 추이",
+    desc: "기간별 보관 사용량 추이입니다.",
+    last7days: "최근 7일",
+  },
+  billing: {
+    title: "보관 요금 미리보기",
+    desc: "월 보관요금 시뮬레이션입니다.",
+    thisMonth: "이번 달",
+  },
+  capacity: {
+    title: "창고 적재율",
+    desc: "위험 알림이 포함된 사용률 모니터링입니다.",
+  },
+  demo: {
+    banner: "데모 모드가 활성화되어 프리셋과 데모 액션을 사용할 수 있습니다.",
+    generateLast7days: "데모 스냅샷 생성 (최근 7일)",
+    generating: "생성 중...",
+  },
+  filter: {
+    from: "from YYYY-MM-DD",
+    to: "to YYYY-MM-DD",
+    date: "date YYYY-MM-DD",
+    month: "month YYYY-MM",
+    warehouseId: "warehouseId",
+    clientId: "clientId",
+    pressEnter: "Enter 키로 조회할 수 있습니다.",
+  },
+} as const;
+

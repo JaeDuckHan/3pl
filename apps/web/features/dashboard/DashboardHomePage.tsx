@@ -7,34 +7,35 @@ import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 import { GenerateSnapshotsButton } from "@/components/dashboard/GenerateSnapshotsButton";
 import { DemoModeBanner, DemoModeToggle } from "@/components/dashboard/DemoModeToggle";
 import { useDemoMode } from "@/features/dashboard/useDemoMode";
-
-const items = [
-  {
-    href: "/dashboard/storage-trend",
-    title: "Storage Trend",
-    description: "Track CBM/Pallet/SKU totals by day, week, or month.",
-  },
-  {
-    href: "/dashboard/storage-billing",
-    title: "Storage Billing",
-    description: "Preview monthly storage charges by warehouse and client.",
-  },
-  {
-    href: "/dashboard/capacity",
-    title: "Capacity",
-    description: "Monitor warehouse usage status and risk alerts.",
-  },
-];
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 export function DashboardHomePage() {
+  const { t } = useI18n();
   const { demoMode, ready, toggleDemoMode } = useDemoMode();
+  const items = [
+    {
+      href: "/dashboard/storage-trend",
+      title: t("nav.trend"),
+      description: t("dashboard.trendCardDesc"),
+    },
+    {
+      href: "/dashboard/storage-billing",
+      title: t("nav.billing"),
+      description: t("dashboard.billingCardDesc"),
+    },
+    {
+      href: "/dashboard/capacity",
+      title: t("nav.capacity"),
+      description: t("dashboard.capacityCardDesc"),
+    },
+  ];
 
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Dashboard" }]}
-        title="Dashboard"
-        subtitle="Demo-ready storage dashboard modules."
+        breadcrumbs={[{ label: t("nav.dashboard") }]}
+        title={t("dashboard.title")}
+        subtitle={t("dashboard.desc")}
         actions={
           <div className="flex items-center gap-2">
             {ready ? <DemoModeToggle demoMode={demoMode} onToggle={toggleDemoMode} /> : null}

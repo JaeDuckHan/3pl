@@ -41,7 +41,7 @@ export function DialogTrigger({
       onClick: () => ctx.setOpen(true),
     });
   }
-  return <button onClick={() => ctx.setOpen(true)}>{children}</button>;
+  return <button type="button" onClick={() => ctx.setOpen(true)}>{children}</button>;
 }
 
 export function DialogContent({

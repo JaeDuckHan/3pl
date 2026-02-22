@@ -3,16 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-
-const tabs = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/storage-trend", label: "Storage Trend" },
-  { href: "/dashboard/storage-billing", label: "Storage Billing" },
-  { href: "/dashboard/capacity", label: "Capacity" },
-];
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 export function DashboardTabs() {
+  const { t } = useI18n();
   const pathname = usePathname();
+  const tabs = [
+    { href: "/dashboard", label: t("tabs.overview") },
+    { href: "/dashboard/storage-trend", label: t("tabs.storageTrend") },
+    { href: "/dashboard/storage-billing", label: t("tabs.storageBilling") },
+    { href: "/dashboard/capacity", label: t("tabs.capacity") },
+  ];
 
   return (
     <div className="mb-6 rounded-xl border bg-white p-1">

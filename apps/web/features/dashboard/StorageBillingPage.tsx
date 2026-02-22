@@ -28,6 +28,7 @@ import { captureElementToPng } from "@/features/dashboard/capture";
 import { normalizeInt, normalizeMonth } from "@/features/dashboard/input";
 import { useDashboardToast } from "@/features/dashboard/toast";
 import { useDemoMode } from "@/features/dashboard/useDemoMode";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 import {
   compareNumber,
   copyToClipboard,
@@ -71,6 +72,7 @@ const billingColumns = [
 ] satisfies CsvColumn<Record<string, unknown>>[];
 
 export function StorageBillingPage() {
+  const { t } = useI18n();
   const { toastError, toastSuccess } = useDashboardToast();
   const { demoMode, ready: demoReady, toggleDemoMode } = useDemoMode();
   const router = useRouter();
@@ -322,20 +324,20 @@ export function StorageBillingPage() {
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Storage Billing" }]}
-        title="Storage Billing Preview"
-        description="Monthly storage billing simulation."
+        breadcrumbs={[{ label: t("nav.dashboard"), href: "/dashboard" }, { label: t("billing.title") }]}
+        title={t("billing.title")}
+        description={t("billing.desc")}
         actions={
           <div className="flex flex-wrap gap-2">
             {demoReady ? <DemoModeToggle demoMode={demoMode} onToggle={toggleDemoMode} /> : null}
             {demoMode ? <GenerateSnapshotsButton /> : null}
             <Button type="button" variant="secondary" onClick={() => void savePng()} disabled={loading}>
               <ImageDown className="h-4 w-4" />
-              Save PNG
+              {t("common.savePng")}
             </Button>
             <Button type="button" variant="secondary" onClick={() => void copyJson()} disabled={!data}>
               <Copy className="h-4 w-4" />
-              Copy JSON
+              {t("common.copyJson")}
             </Button>
           </div>
         }
@@ -371,7 +373,7 @@ export function StorageBillingPage() {
           inputMode="decimal"
         />
         <Button type="button" variant="secondary" onClick={applyThisMonthPreset} disabled={loading}>
-          This month
+          {t("billing.thisMonth")}
         </Button>
       </FilterBar>
 
@@ -426,11 +428,11 @@ export function StorageBillingPage() {
             />
             <Button type="button" variant="secondary" onClick={exportCsv} disabled={!tableRows.length}>
               <Download className="h-4 w-4" />
-              CSV export
+              {t("common.downloadCsv")}
             </Button>
             <Button type="button" variant="secondary" onClick={() => void copyTable()} disabled={!tableRows.length}>
               <Copy className="h-4 w-4" />
-              Copy table
+              {t("common.copyTable")}
             </Button>
           </div>
         </CardHeader>

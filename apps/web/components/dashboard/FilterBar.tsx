@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { normalizeDate, normalizeInt, normalizeMonth } from "@/features/dashboard/input";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 export type FilterBarValues = {
   [key: string]: string | undefined;
@@ -45,6 +46,7 @@ export function FilterBar({
   queryKeys,
   syncToUrl = true,
 }: FilterBarProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -83,13 +85,13 @@ export function FilterBar({
         {mode === "date-range" && (
           <>
             <Input
-              placeholder="from YYYY-MM-DD"
+              placeholder={t("filter.from")}
               value={values.from ?? ""}
               onChange={(e) => onChange({ ...values, from: e.target.value.replace(/[^\d-]/g, "").slice(0, 10) })}
               onBlur={() => onChange({ ...values, from: normalizeDate(values.from ?? "") })}
             />
             <Input
-              placeholder="to YYYY-MM-DD"
+              placeholder={t("filter.to")}
               value={values.to ?? ""}
               onChange={(e) => onChange({ ...values, to: e.target.value.replace(/[^\d-]/g, "").slice(0, 10) })}
               onBlur={() => onChange({ ...values, to: normalizeDate(values.to ?? "") })}
@@ -98,7 +100,7 @@ export function FilterBar({
         )}
         {mode === "date" && (
           <Input
-            placeholder="date YYYY-MM-DD"
+            placeholder={t("filter.date")}
             value={values.date ?? ""}
             onChange={(e) => onChange({ ...values, date: e.target.value.replace(/[^\d-]/g, "").slice(0, 10) })}
             onBlur={() => onChange({ ...values, date: normalizeDate(values.date ?? "") })}
@@ -106,7 +108,7 @@ export function FilterBar({
         )}
         {mode === "month" && (
           <Input
-            placeholder="month YYYY-MM"
+            placeholder={t("filter.month")}
             value={values.month ?? ""}
             onChange={(e) => onChange({ ...values, month: e.target.value.replace(/[^\d-]/g, "").slice(0, 7) })}
             onBlur={() => onChange({ ...values, month: normalizeMonth(values.month ?? "") })}
@@ -115,21 +117,21 @@ export function FilterBar({
 
         {!hideWarehouse && (
           <Input
-            placeholder="warehouseId"
+            placeholder={t("filter.warehouseId")}
             value={values.warehouseId ?? ""}
             onChange={(e) => onChange({ ...values, warehouseId: normalizeInt(e.target.value) })}
           />
         )}
         {!hideClient && (
           <Input
-            placeholder="clientId"
+            placeholder={t("filter.clientId")}
             value={values.clientId ?? ""}
             onChange={(e) => onChange({ ...values, clientId: normalizeInt(e.target.value) })}
           />
         )}
         {children}
         <Button type="button" disabled={!canSubmit} onClick={submitFilters}>
-          {loading ? "Loading..." : "Load"}
+          {loading ? t("common.loading") : t("common.load")}
         </Button>
         <Button
           type="button"
@@ -139,10 +141,10 @@ export function FilterBar({
             syncQuery({}, keysToSync);
           }}
         >
-          Reset
+          {t("common.reset")}
         </Button>
       </div>
-      <div className="mt-2 text-xs text-slate-500">Press Enter to submit.</div>
+      <div className="mt-2 text-xs text-slate-500">{t("filter.pressEnter")}</div>
       {validationError && <p className="mt-2 text-sm text-red-600">{validationError}</p>}
     </div>
   );

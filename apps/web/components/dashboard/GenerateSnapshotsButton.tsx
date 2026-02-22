@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { generateSnapshotsForDate, generateStorageSnapshots } from "@/features/dashboard/api";
 import { useDashboardToast } from "@/features/dashboard/toast";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 function dateText(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -16,6 +17,7 @@ export function GenerateSnapshotsButton({
   warehouseId?: number;
   clientId?: number;
 }) {
+  const { t } = useI18n();
   const { toastError, toastSuccess } = useDashboardToast();
   const [pending, setPending] = useState(false);
 
@@ -39,7 +41,7 @@ export function GenerateSnapshotsButton({
           });
         }
       }
-      toastSuccess("Generated snapshots for last 7 days");
+      toastSuccess(t("demo.generateLast7days"));
     } catch (error) {
       toastError(error instanceof Error ? error.message : "Failed to generate snapshots");
     } finally {
@@ -49,7 +51,7 @@ export function GenerateSnapshotsButton({
 
   return (
     <Button type="button" size="sm" variant="secondary" onClick={() => void run()} disabled={pending}>
-      {pending ? "Generating..." : "Generate demo snapshots (last 7 days)"}
+      {pending ? t("demo.generating") : t("demo.generateLast7days")}
     </Button>
   );
 }
