@@ -97,12 +97,24 @@ function toQuery(input: Record<string, string | number | undefined>) {
   return qs ? `?${qs}` : "";
 }
 
+async function parseDashboardResponse(response: Response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return {
+      ok: false,
+      message: text || `Dashboard request failed (${response.status})`,
+    };
+  }
+}
+
 async function requestDashboard<T>(path: string, query?: Record<string, string | number | undefined>) {
   const response = await fetch(`/api/dashboard/${path}${toQuery(query ?? {})}`, {
     cache: "no-store",
   });
 
-  const json = await response.json();
+  const json = await parseDashboardResponse(response);
   if (!response.ok || !json?.ok) {
     throw new Error(json?.message || "Dashboard request failed");
   }
@@ -117,7 +129,7 @@ async function requestDashboardPost<T>(path: string, body: Record<string, string
     body: JSON.stringify(body),
   });
 
-  const json = await response.json();
+  const json = await parseDashboardResponse(response);
   if (!response.ok || !json?.ok) {
     throw new Error(json?.message || "Dashboard request failed");
   }

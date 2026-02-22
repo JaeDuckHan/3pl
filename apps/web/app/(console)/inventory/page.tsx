@@ -11,15 +11,15 @@ import type { InventoryTab } from "@/features/inventory/types";
 import { ApiError } from "@/features/outbound/api";
 
 const tabs: Array<{ label: string; value: InventoryTab }> = [
-  { label: "Balances", value: "balances" },
-  { label: "Transactions", value: "transactions" },
+  { label: "재고", value: "balances" },
+  { label: "거래이력", value: "transactions" },
 ];
 
 const txnTypeFilter = [
-  { label: "All Types", value: "" },
-  { label: "Inbound Receive", value: "inbound_receive" },
-  { label: "Outbound Ship", value: "outbound_ship" },
-  { label: "Return Receive", value: "return_receive" },
+  { label: "전체 유형", value: "" },
+  { label: "입고 확정", value: "inbound_receive" },
+  { label: "출고 확정", value: "outbound_ship" },
+  { label: "반품 입고", value: "return_receive" },
 ];
 
 export default async function InventoryPage({
@@ -46,39 +46,39 @@ export default async function InventoryPage({
     if (error instanceof ApiError && error.status === 401) {
       redirect("/login?next=/inventory");
     }
-    loadError = error instanceof Error ? error.message : "Unexpected inventory error";
+    loadError = error instanceof Error ? error.message : "재고 조회 중 오류가 발생했습니다.";
   }
 
   const table = loadError ? (
-    <ErrorState title="Failed to load inventory data." message={loadError} />
+    <ErrorState title="재고 데이터를 불러오지 못했습니다." message={loadError} />
   ) :
     currentTab === "balances" ? (
       <DataTable
         rows={balances}
-        emptyText="No stock balances found."
+        emptyText="재고 데이터가 없습니다."
         columns={[
-          { key: "client", label: "Client", render: (row) => row.client },
-          { key: "product", label: "Product", render: (row) => row.product },
-          { key: "lot", label: "Lot", render: (row) => row.lot },
-          { key: "warehouse", label: "Warehouse", render: (row) => row.warehouse },
-          { key: "location", label: "Location", render: (row) => row.location },
-          { key: "available_qty", label: "Available Qty", className: "tabular-nums", render: (row) => row.available_qty },
-          { key: "reserved_qty", label: "Reserved Qty", className: "tabular-nums", render: (row) => row.reserved_qty },
+          { key: "client", label: "고객사", render: (row) => row.client },
+          { key: "product", label: "상품", render: (row) => row.product },
+          { key: "lot", label: "LOT", render: (row) => row.lot },
+          { key: "warehouse", label: "창고", render: (row) => row.warehouse },
+          { key: "location", label: "로케이션", render: (row) => row.location },
+          { key: "available_qty", label: "가용수량", className: "tabular-nums", render: (row) => row.available_qty },
+          { key: "reserved_qty", label: "예약수량", className: "tabular-nums", render: (row) => row.reserved_qty },
         ]}
       />
     ) : (
       <DataTable
         rows={transactions}
-        emptyText="No stock transactions found."
+        emptyText="재고 거래이력이 없습니다."
         columns={[
-          { key: "txn_date", label: "Txn Date", className: "tabular-nums", render: (row) => row.txn_date },
-          { key: "txn_type", label: "Type", render: (row) => row.txn_type },
-          { key: "client", label: "Client", render: (row) => row.client },
-          { key: "product", label: "Product", render: (row) => row.product },
-          { key: "lot", label: "Lot", render: (row) => row.lot },
-          { key: "qty_in", label: "Qty In", className: "tabular-nums", render: (row) => row.qty_in },
-          { key: "qty_out", label: "Qty Out", className: "tabular-nums", render: (row) => row.qty_out },
-          { key: "ref", label: "Ref", render: (row) => row.ref },
+          { key: "txn_date", label: "거래일시", className: "tabular-nums", render: (row) => row.txn_date },
+          { key: "txn_type", label: "유형", render: (row) => row.txn_type },
+          { key: "client", label: "고객사", render: (row) => row.client },
+          { key: "product", label: "상품", render: (row) => row.product },
+          { key: "lot", label: "LOT", render: (row) => row.lot },
+          { key: "qty_in", label: "입고수량", className: "tabular-nums", render: (row) => row.qty_in },
+          { key: "qty_out", label: "출고수량", className: "tabular-nums", render: (row) => row.qty_out },
+          { key: "ref", label: "참조", render: (row) => row.ref },
         ]}
       />
     );
@@ -86,13 +86,13 @@ export default async function InventoryPage({
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Operations" }, { label: "Inventory" }]}
-        title="Inventory"
-        subtitle="Live stock balances and movement history"
+        breadcrumbs={[{ label: "운영" }, { label: "재고" }]}
+        title="재고"
+        subtitle="실시간 재고 및 거래 이력"
       />
 
       <div className="mb-5 rounded-xl border bg-white px-4 py-3">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">View</p>
+        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">보기</p>
         <div className="flex flex-wrap items-center gap-2">
           {tabs.map((item) => {
             const params = new URLSearchParams();
@@ -110,7 +110,7 @@ export default async function InventoryPage({
 
         {currentTab === "transactions" && (
           <>
-            <p className="mb-2 mt-4 text-xs font-medium uppercase tracking-wide text-slate-500">Transaction Type</p>
+            <p className="mb-2 mt-4 text-xs font-medium uppercase tracking-wide text-slate-500">거래 유형</p>
             <div className="flex flex-wrap items-center gap-2">
               {txnTypeFilter.map((item) => {
                 const params = new URLSearchParams();

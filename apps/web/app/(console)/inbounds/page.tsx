@@ -8,21 +8,21 @@ import { getInboundOrders } from "@/features/inbound/api";
 import type { InboundListStatus, InboundStatus } from "@/features/inbound/types";
 
 const filterItems: Array<{ label: string; value: InboundListStatus }> = [
-  { label: "All", value: "all" },
-  { label: "Draft", value: "draft" },
-  { label: "Submitted", value: "submitted" },
-  { label: "Arrived", value: "arrived" },
-  { label: "Received", value: "received" },
+  { label: "전체", value: "all" },
+  { label: "작성", value: "draft" },
+  { label: "제출", value: "submitted" },
+  { label: "도착", value: "arrived" },
+  { label: "입고완료", value: "received" },
 ];
 
 function statusBadge(status: InboundStatus) {
   const map: Record<InboundStatus, { label: string; variant: "default" | "info" | "warning" | "success" }> = {
-    draft: { label: "Draft", variant: "default" },
-    submitted: { label: "Submitted", variant: "info" },
-    arrived: { label: "Arrived", variant: "warning" },
-    qc_hold: { label: "QC Hold", variant: "warning" },
-    received: { label: "Received", variant: "success" },
-    cancelled: { label: "Cancelled", variant: "default" },
+    draft: { label: "작성", variant: "default" },
+    submitted: { label: "제출", variant: "info" },
+    arrived: { label: "도착", variant: "warning" },
+    qc_hold: { label: "QC 보류", variant: "warning" },
+    received: { label: "입고완료", variant: "success" },
+    cancelled: { label: "취소", variant: "default" },
   };
   const current = map[status];
   return <Badge variant={current.variant}>{current.label}</Badge>;
@@ -41,9 +41,9 @@ export default async function InboundsPage({
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Operations" }, { label: "Inbounds" }]}
-        title="Inbounds"
-        subtitle="Inbound order queue overview"
+        breadcrumbs={[{ label: "운영" }, { label: "입고" }]}
+        title="입고"
+        subtitle="입고 오더 현황"
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -62,21 +62,21 @@ export default async function InboundsPage({
 
       <DataTable
         rows={orders}
-        emptyText="No inbound orders found."
+        emptyText="입고 오더가 없습니다."
         columns={[
           {
             key: "inbound_no",
-            label: "Inbound No",
+            label: "입고번호",
             render: (row) => (
               <Link href={`/inbounds/${encodeURIComponent(row.inbound_no)}`} className="font-medium text-slate-900 hover:underline">
                 {row.inbound_no}
               </Link>
             ),
           },
-          { key: "client", label: "Client", render: (row) => row.client },
-          { key: "inbound_date", label: "Date", render: (row) => <span className="tabular-nums">{row.inbound_date}</span> },
-          { key: "summary", label: "Summary", render: (row) => row.summary },
-          { key: "status", label: "Status", render: (row) => statusBadge(row.status) },
+          { key: "client", label: "고객사", render: (row) => row.client },
+          { key: "inbound_date", label: "일자", render: (row) => <span className="tabular-nums">{row.inbound_date}</span> },
+          { key: "summary", label: "요약", render: (row) => row.summary },
+          { key: "status", label: "상태", render: (row) => statusBadge(row.status) },
         ]}
       />
     </section>

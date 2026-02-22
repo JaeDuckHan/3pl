@@ -9,11 +9,11 @@ import type { OutboundListStatus } from "@/features/outbound/types";
 import { AUTH_COOKIE_KEY } from "@/lib/auth";
 
 const filterItems: Array<{ label: string; value: OutboundListStatus }> = [
-  { label: "All", value: "all" },
-  { label: "Draft", value: "draft" },
-  { label: "Allocated", value: "allocated" },
-  { label: "Packing", value: "packing" },
-  { label: "Shipped", value: "shipped" },
+  { label: "전체", value: "all" },
+  { label: "작성", value: "draft" },
+  { label: "할당", value: "allocated" },
+  { label: "피킹/포장", value: "packing" },
+  { label: "출고완료", value: "shipped" },
 ];
 
 export default async function OutboundsPage({
@@ -29,9 +29,9 @@ export default async function OutboundsPage({
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Operations" }, { label: "Outbounds" }]}
-        title="Outbounds"
-        subtitle="Outbound order queue overview"
+        breadcrumbs={[{ label: "운영" }, { label: "출고" }]}
+        title="출고"
+        subtitle="출고 오더 현황"
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -51,21 +51,21 @@ export default async function OutboundsPage({
 
       <DataTable
         rows={orders}
-        emptyText="No outbound orders found."
+        emptyText="출고 오더가 없습니다."
         columns={[
           {
             key: "outbound_no",
-            label: "Outbound No",
+            label: "출고번호",
             render: (row) => (
               <Link href={`/outbounds/${encodeURIComponent(row.outbound_no)}`} className="font-medium text-slate-900 hover:underline">
                 {row.outbound_no}
               </Link>
             ),
           },
-          { key: "client", label: "Client", render: (row) => row.client },
-          { key: "eta_date", label: "ETA", render: (row) => <span className="tabular-nums">{row.eta_date}</span> },
-          { key: "summary", label: "Summary", render: (row) => row.summary },
-          { key: "status", label: "Status", render: (row) => <StatusBadge status={row.status} /> },
+          { key: "client", label: "고객사", render: (row) => row.client },
+          { key: "eta_date", label: "출고예정일", render: (row) => <span className="tabular-nums">{row.eta_date}</span> },
+          { key: "summary", label: "요약", render: (row) => row.summary },
+          { key: "status", label: "상태", render: (row) => <StatusBadge status={row.status} /> },
         ]}
       />
     </section>

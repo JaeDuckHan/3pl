@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/features/auth/api";
 import { useToast } from "@/components/ui/toast";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 
 export function Topbar() {
+  const { lang } = useI18n();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -45,7 +47,7 @@ export function Topbar() {
       <form onSubmit={onSearch} className="relative w-full max-w-md">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <Input
-          placeholder="Search orders, clients, products..."
+          placeholder={lang === "ko" ? "주문, 고객사, 상품 검색..." : "Search orders, clients, products..."}
           className="pl-9"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
