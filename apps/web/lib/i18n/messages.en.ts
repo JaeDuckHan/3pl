@@ -1,0 +1,71 @@
+export const messagesEn = {
+  nav: {
+    inbounds: "Inbounds",
+    outbounds: "Outbounds",
+    inventory: "Inventory",
+    billing: "Billing",
+    dashboard: "Dashboard",
+    settings: "Settings",
+    trend: "Storage Trend",
+    capacity: "Capacity",
+  },
+  tabs: {
+    overview: "Overview",
+    storageTrend: "Storage Trend",
+    storageBilling: "Storage Billing",
+    capacity: "Capacity",
+  },
+  common: {
+    load: "Load",
+    loading: "Loading...",
+    reset: "Reset",
+    copy: "Copy",
+    copyJson: "Copy JSON",
+    copyTable: "Copy table",
+    downloadCsv: "Download CSV",
+    savePng: "Save PNG",
+    demoMode: "Demo Mode",
+  },
+  sidebar: {
+    product: "Kowinsblue 3PL",
+    console: "WMS Console",
+    logout: "Logout",
+    language: "Language",
+  },
+  dashboard: {
+    title: "Dashboard",
+    desc: "Demo-ready storage dashboard modules.",
+    trendCardDesc: "Track CBM/Pallet/SKU totals by day, week, or month.",
+    billingCardDesc: "Preview monthly storage charges by warehouse and client.",
+    capacityCardDesc: "Monitor warehouse usage status and risk alerts.",
+  },
+  trend: {
+    title: "Storage Trend",
+    desc: "Trend of storage usage by period.",
+    last7days: "Last 7 days",
+  },
+  billing: {
+    title: "Storage Billing Preview",
+    desc: "Monthly storage billing simulation.",
+    thisMonth: "This month",
+  },
+  capacity: {
+    title: "Warehouse Capacity",
+    desc: "Usage monitoring with risk alerts.",
+  },
+  demo: {
+    banner: "Demo Mode is ON presets + demo actions enabled.",
+    generateLast7days: "Generate demo snapshots (last 7 days)",
+    generating: "Generating...",
+  },
+  filter: {
+    from: "from YYYY-MM-DD",
+    to: "to YYYY-MM-DD",
+    date: "date YYYY-MM-DD",
+    month: "month YYYY-MM",
+    warehouseId: "warehouseId",
+    clientId: "clientId",
+    pressEnter: "Press Enter to submit.",
+  },
+} as const;
+
