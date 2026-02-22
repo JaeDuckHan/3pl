@@ -9,5 +9,5 @@ export default function OutboundDetailError({
   error: Error;
   reset: () => void;
 }) {
-  return <ErrorState title="Failed to load outbound detail." message={error.message} onRetry={reset} />;
+  return <ErrorState title="출고 상세를 불러오지 못했습니다." message={error.message} onRetry={reset} />;
 }

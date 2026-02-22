@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { logout } from "@/features/auth/api";
 import { useToast } from "@/components/ui/toast";
 import { useI18n } from "@/lib/i18n/I18nProvider";
+import { useDemoMode } from "@/features/dashboard/useDemoMode";
 
 export function Topbar() {
   const { lang } = useI18n();
+  const { demoMode, toggleDemoMode, ready: demoReady } = useDemoMode();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -54,6 +56,17 @@ export function Topbar() {
         />
       </form>
       <div className="ml-4 flex items-center gap-2">
+        {demoReady ? (
+          <Button
+            type="button"
+            size="sm"
+            variant={demoMode ? "default" : "secondary"}
+            onClick={toggleDemoMode}
+            title={lang === "ko" ? "대시보드 데모 모드 토글" : "Toggle dashboard demo mode"}
+          >
+            {lang === "ko" ? `데모 ${demoMode ? "ON" : "OFF"}` : `Demo ${demoMode ? "ON" : "OFF"}`}
+          </Button>
+        ) : null}
         <button type="button" className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
           <Bell className="h-5 w-5" />
         </button>

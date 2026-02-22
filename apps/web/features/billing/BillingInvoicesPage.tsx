@@ -44,7 +44,7 @@ export function BillingInvoicesPage() {
     try {
       setRows(await listBillingInvoices({ client_id: clientId, invoice_month: invoiceMonth, status: status || undefined }));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load invoices.");
+      setError(e instanceof Error ? e.message : "정산서를 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
@@ -63,22 +63,22 @@ export function BillingInvoicesPage() {
         regenerate_draft: regenerateDraft,
       });
       if (result.reused) {
-        pushToast({ title: "Draft already exists", variant: "info" });
+        pushToast({ title: "기존 초안이 있어 재사용했습니다.", variant: "info" });
       } else {
-        pushToast({ title: "Invoice generated", variant: "success" });
+        pushToast({ title: "정산서를 생성했습니다.", variant: "success" });
       }
       await reload();
     } catch (e) {
-      pushToast({ title: "Generate failed", description: e instanceof Error ? e.message : "", variant: "error" });
+      pushToast({ title: "정산서 생성 실패", description: e instanceof Error ? e.message : "", variant: "error" });
     }
   };
 
   const onSeed = async () => {
     try {
       await seedBillingEvents({ client_id: clientId, invoice_month: invoiceMonth });
-      pushToast({ title: "Sample events created", variant: "success" });
+      pushToast({ title: "샘플 이벤트를 생성했습니다.", variant: "success" });
     } catch (e) {
-      pushToast({ title: "Seed failed", description: e instanceof Error ? e.message : "", variant: "error" });
+      pushToast({ title: "샘플 생성 실패", description: e instanceof Error ? e.message : "", variant: "error" });
     }
   };
 
@@ -86,10 +86,10 @@ export function BillingInvoicesPage() {
     setActingId(id);
     try {
       await issueBillingInvoice(id);
-      pushToast({ title: "Invoice issued", variant: "success" });
+      pushToast({ title: "정산서를 발행했습니다.", variant: "success" });
       await reload();
     } catch (e) {
-      pushToast({ title: "Issue failed", description: e instanceof Error ? e.message : "", variant: "error" });
+      pushToast({ title: "발행 실패", description: e instanceof Error ? e.message : "", variant: "error" });
     } finally {
       setActingId(null);
     }
@@ -99,10 +99,10 @@ export function BillingInvoicesPage() {
     setActingId(id);
     try {
       await markBillingInvoicePaid(id);
-      pushToast({ title: "Invoice marked paid", variant: "success" });
+      pushToast({ title: "정산서를 수금완료 처리했습니다.", variant: "success" });
       await reload();
     } catch (e) {
-      pushToast({ title: "Mark paid failed", description: e instanceof Error ? e.message : "", variant: "error" });
+      pushToast({ title: "수금완료 처리 실패", description: e instanceof Error ? e.message : "", variant: "error" });
     } finally {
       setActingId(null);
     }
@@ -111,39 +111,39 @@ export function BillingInvoicesPage() {
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Billing" }, { label: "Invoices" }]}
-        title="Invoices"
-        subtitle="KRW-only invoice generation with locked THB/KRW rate and VAT line item."
+        breadcrumbs={[{ label: "정산" }, { label: "정산서" }]}
+        title="정산서"
+        subtitle="THB/KRW 환율 스냅샷과 VAT를 반영해 월별 정산서를 생성합니다."
       />
       <BillingTabs />
 
       <div className="mb-4 rounded-xl border bg-white p-4">
         <div className="grid gap-3 md:grid-cols-5">
-          <Input type="number" placeholder="Client ID" value={clientId} onChange={(e) => setClientId(Number(e.target.value || 0))} />
+          <Input type="number" placeholder="고객사 ID" value={clientId} onChange={(e) => setClientId(Number(e.target.value || 0))} />
           <Input type="month" value={invoiceMonth} onChange={(e) => setInvoiceMonth(e.target.value)} />
           <Input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} />
           <select className="h-9 rounded-md border px-3 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="">All status</option>
+            <option value="">전체 상태</option>
             <option value="draft">draft</option>
             <option value="issued">issued</option>
             <option value="paid">paid</option>
           </select>
-          <Button variant="secondary" onClick={() => void reload()}>Filter</Button>
+          <Button variant="secondary" onClick={() => void reload()}>조회</Button>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Button onClick={() => void onGenerate(0)}>Generate</Button>
-          <Button variant="secondary" onClick={() => void onGenerate(1)}>Re-generate Draft</Button>
-          <Button variant="ghost" onClick={() => void onSeed()}>Create Sample Events</Button>
+          <Button onClick={() => void onGenerate(0)}>생성</Button>
+          <Button variant="secondary" onClick={() => void onGenerate(1)}>초안 재생성</Button>
+          <Button variant="ghost" onClick={() => void onSeed()}>샘플 이벤트 생성</Button>
         </div>
       </div>
 
       <div className="rounded-xl border bg-white p-6">
         {error ? (
-          <ErrorState title="Failed to load invoices" message={error} onRetry={() => void reload()} />
+          <ErrorState title="정산서를 불러오지 못했습니다." message={error} onRetry={() => void reload()} />
         ) : (
           <DataTable
             rows={rows}
-            emptyText={loading ? "Loading..." : "No invoices"}
+            emptyText={loading ? "불러오는 중..." : "정산서가 없습니다."}
             columns={[
               { key: "invoice_no", label: "Invoice No", render: (row) => <Link href={`/billing/${row.id}`} className="font-medium hover:underline">{row.invoice_no}</Link> },
               { key: "client", label: "Client", render: (row) => `${row.client_code} (${row.client_id})` },

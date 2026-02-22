@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { href: "/settings/clients", label: "Clients" },
-  { href: "/settings/products", label: "Products" },
-  { href: "/settings/warehouses", label: "Warehouses" },
-  { href: "/settings/service-rates", label: "Service Rates" },
-  { href: "/settings/contract-rates", label: "Contract Rates" },
-  { href: "/settings/exchange-rates", label: "Exchange Rates" },
+  { href: "/settings/clients", label: "고객사" },
+  { href: "/settings/products", label: "상품" },
+  { href: "/settings/warehouses", label: "창고" },
+  { href: "/settings/service-rates", label: "서비스 요율" },
+  { href: "/settings/contract-rates", label: "계약 요율" },
+  { href: "/settings/exchange-rates", label: "환율" },
 ];
 
 export function SettingsTabs() {

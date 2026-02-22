@@ -50,7 +50,7 @@ export function BillingEventsPage() {
       setRows(data);
       setSelectedIds([]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load billing events.");
+      setError(e instanceof Error ? e.message : "정산 이벤트를 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
@@ -77,44 +77,44 @@ export function BillingEventsPage() {
 
   const onBulkMarkPending = async () => {
     if (!selectedIds.length) {
-      pushToast({ title: "Select at least one event.", variant: "info" });
+      pushToast({ title: "이벤트를 1개 이상 선택해 주세요.", variant: "info" });
       return;
     }
     try {
       const result = await markBillingEventsPending(selectedIds);
-      pushToast({ title: `Updated ${result.updated} events`, variant: "success" });
+      pushToast({ title: `${result.updated}건을 대기 상태로 변경했습니다.`, variant: "success" });
       await reload();
     } catch (e) {
-      pushToast({ title: "Bulk update failed", description: e instanceof Error ? e.message : "", variant: "error" });
+      pushToast({ title: "일괄 변경 실패", description: e instanceof Error ? e.message : "", variant: "error" });
     }
   };
 
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Billing" }, { label: "Billing Events" }]}
-        title="Billing Events"
-        subtitle="Review pending/invoiced billing events before monthly KRW invoice generation."
+        breadcrumbs={[{ label: "정산" }, { label: "정산 이벤트" }]}
+        title="정산 이벤트"
+        subtitle="월 정산서 생성 전 대기/청구 상태 이벤트를 검토합니다."
       />
       <BillingTabs />
 
       <div className="mb-4 rounded-xl border bg-white p-4">
         <div className="grid gap-3 md:grid-cols-5">
           <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
-          <Input placeholder="Client ID" value={clientId} onChange={(e) => setClientId(e.target.value)} />
+          <Input placeholder="고객사 ID" value={clientId} onChange={(e) => setClientId(e.target.value)} />
           <select className="h-9 rounded-md border px-3 text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="">All status</option>
+            <option value="">전체 상태</option>
             <option value="PENDING">PENDING</option>
             <option value="INVOICED">INVOICED</option>
           </select>
-          <Input placeholder="Service code" value={serviceCode} onChange={(e) => setServiceCode(e.target.value.toUpperCase())} />
-          <Button variant="secondary" onClick={() => void reload()}>Filter</Button>
+          <Input placeholder="서비스 코드" value={serviceCode} onChange={(e) => setServiceCode(e.target.value.toUpperCase())} />
+          <Button variant="secondary" onClick={() => void reload()}>조회</Button>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
-          <a href={csvHref} className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-slate-50">Export CSV</a>
+          <a href={csvHref} className="inline-flex items-center rounded-md border px-3 py-2 text-sm hover:bg-slate-50">CSV 내보내기</a>
           {isAdmin && (
             <Button variant="secondary" onClick={() => void onBulkMarkPending()}>
-              Mark as Pending (Admin)
+              대기 상태로 변경 (관리자)
             </Button>
           )}
         </div>
@@ -122,11 +122,11 @@ export function BillingEventsPage() {
 
       <div className="rounded-xl border bg-white p-6">
         {error ? (
-          <ErrorState title="Failed to load billing events" message={error} onRetry={() => void reload()} />
+          <ErrorState title="정산 이벤트를 불러오지 못했습니다." message={error} onRetry={() => void reload()} />
         ) : (
           <DataTable
             rows={rows}
-            emptyText={loading ? "Loading..." : "No billing events"}
+            emptyText={loading ? "불러오는 중..." : "정산 이벤트가 없습니다."}
             columns={[
               {
                 key: "select",

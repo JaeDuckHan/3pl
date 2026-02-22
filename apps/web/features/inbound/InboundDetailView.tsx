@@ -30,19 +30,19 @@ function actionByStatus(status: InboundOrder["status"]): InboundAction | null {
 }
 
 function actionLabel(action: InboundAction) {
-  if (action === "submit") return "Submit";
-  if (action === "arrive") return "Arrive";
-  return "Receive";
+  if (action === "submit") return "제출";
+  if (action === "arrive") return "도착";
+  return "입고확정";
 }
 
 function statusBadge(status: InboundStatus) {
   const map: Record<InboundStatus, { label: string; variant: "default" | "info" | "warning" | "success" }> = {
-    draft: { label: "Draft", variant: "default" },
-    submitted: { label: "Submitted", variant: "info" },
-    arrived: { label: "Arrived", variant: "warning" },
-    qc_hold: { label: "QC Hold", variant: "warning" },
-    received: { label: "Received", variant: "success" },
-    cancelled: { label: "Cancelled", variant: "default" },
+    draft: { label: "작성", variant: "default" },
+    submitted: { label: "제출", variant: "info" },
+    arrived: { label: "도착", variant: "warning" },
+    qc_hold: { label: "QC 보류", variant: "warning" },
+    received: { label: "입고완료", variant: "success" },
+    cancelled: { label: "취소", variant: "default" },
   };
   const current = map[status];
   return <Badge variant={current.variant}>{current.label}</Badge>;
@@ -74,13 +74,13 @@ export function InboundDetailView({ order: initialOrder, initialTab }: { order: 
       const updated = await transitionInboundStatus(order.inbound_no, currentAction);
       setOrder(updated);
       pushToast({
-        title: `${actionLabel(currentAction)} completed`,
-        description: `Inbound status changed to ${updated.status}.`,
+        title: `${actionLabel(currentAction)} 완료`,
+        description: `입고 상태가 ${updated.status}(으)로 변경되었습니다.`,
         variant: "success",
       });
     } catch (error) {
-      const message = error instanceof ApiError ? error.message : "Action failed";
-      pushToast({ title: "Action failed", description: message, variant: "error" });
+      const message = error instanceof ApiError ? error.message : "작업에 실패했습니다.";
+      pushToast({ title: "처리 실패", description: message, variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -88,18 +88,18 @@ export function InboundDetailView({ order: initialOrder, initialTab }: { order: 
 
   const itemColumns = useMemo(
     () => [
-      { key: "barcode_full", label: "barcode_full", render: (row: InboundOrder["items"][number]) => row.barcode_full },
-      { key: "product_name", label: "product_name", render: (row: InboundOrder["items"][number]) => row.product_name },
-      { key: "lot", label: "lot", render: (row: InboundOrder["items"][number]) => row.lot },
-      { key: "location", label: "location", render: (row: InboundOrder["items"][number]) => row.location },
-      { key: "qty", label: "qty", className: "tabular-nums", render: (row: InboundOrder["items"][number]) => row.qty },
+      { key: "barcode_full", label: "바코드", render: (row: InboundOrder["items"][number]) => row.barcode_full },
+      { key: "product_name", label: "상품명", render: (row: InboundOrder["items"][number]) => row.product_name },
+      { key: "lot", label: "LOT", render: (row: InboundOrder["items"][number]) => row.lot },
+      { key: "location", label: "로케이션", render: (row: InboundOrder["items"][number]) => row.location },
+      { key: "qty", label: "수량", className: "tabular-nums", render: (row: InboundOrder["items"][number]) => row.qty },
       {
         key: "invoice_price",
-        label: "invoice_price",
+        label: "단가",
         className: "tabular-nums",
         render: (row: InboundOrder["items"][number]) => (row.invoice_price === null ? "-" : row.invoice_price),
       },
-      { key: "currency", label: "currency", render: (row: InboundOrder["items"][number]) => row.currency ?? "-" },
+      { key: "currency", label: "통화", render: (row: InboundOrder["items"][number]) => row.currency ?? "-" },
     ],
     []
   );
@@ -107,9 +107,9 @@ export function InboundDetailView({ order: initialOrder, initialTab }: { order: 
   return (
     <section>
       <PageHeader
-        breadcrumbs={[{ label: "Operations" }, { label: "Inbounds", href: "/inbounds" }, { label: order.inbound_no }]}
+        breadcrumbs={[{ label: "운영" }, { label: "입고", href: "/inbounds" }, { label: order.inbound_no }]}
         title={order.inbound_no}
-        subtitle={`${order.client} | Date ${order.inbound_date}`}
+        subtitle={`${order.client} | 일자 ${order.inbound_date}`}
         rightSlot={
           <div className="flex items-center gap-2">
             {statusBadge(order.status)}
@@ -124,22 +124,22 @@ export function InboundDetailView({ order: initialOrder, initialTab }: { order: 
 
       <Tabs value={tab} onValueChange={setTabWithQuery}>
         <TabsList className="mb-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="items">Items</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="overview">개요</TabsTrigger>
+          <TabsTrigger value="items">품목</TabsTrigger>
+          <TabsTrigger value="timeline">이력</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="grid gap-6 md:grid-cols-3">
           <Card>
-            <CardHeader><CardTitle>Client</CardTitle></CardHeader>
+            <CardHeader><CardTitle>고객사</CardTitle></CardHeader>
             <CardContent><p className="text-sm font-medium">{order.client}</p></CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle>Warehouse</CardTitle></CardHeader>
+            <CardHeader><CardTitle>창고</CardTitle></CardHeader>
             <CardContent><p className="text-sm">{order.warehouse}</p></CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle>Summary</CardTitle></CardHeader>
+            <CardHeader><CardTitle>요약</CardTitle></CardHeader>
             <CardContent className="space-y-2">
               <p className="text-sm">{order.summary}</p>
               <p className="text-sm text-slate-500">{order.memo}</p>
@@ -148,12 +148,12 @@ export function InboundDetailView({ order: initialOrder, initialTab }: { order: 
         </TabsContent>
 
         <TabsContent value="items">
-          <DataTable rows={order.items} columns={itemColumns} emptyText="No inbound items." />
+          <DataTable rows={order.items} columns={itemColumns} emptyText="입고 품목이 없습니다." />
         </TabsContent>
 
         <TabsContent value="timeline">
           {order.timeline.length === 0 ? (
-            <div className="rounded-xl border bg-white px-6 py-8 text-center text-sm text-slate-500">No timeline logs.</div>
+            <div className="rounded-xl border bg-white px-6 py-8 text-center text-sm text-slate-500">이력 로그가 없습니다.</div>
           ) : (
             <div className="rounded-xl border bg-white px-6 py-2">
               {order.timeline.map((log, idx) => (

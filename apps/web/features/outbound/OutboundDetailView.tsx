@@ -40,9 +40,9 @@ function actionByStatus(status: OutboundOrder["status"]): OutboundAction | null 
 }
 
 function actionLabel(action: OutboundAction) {
-  if (action === "allocate") return "Allocate";
-  if (action === "pack") return "Pack";
-  return "Ship";
+  if (action === "allocate") return "할당";
+  if (action === "pack") return "포장";
+  return "출고";
 }
 
 export function OutboundDetailView({
@@ -94,13 +94,13 @@ export function OutboundDetailView({
       setOrder(updated);
       setConfirmOpen(false);
       pushToast({
-        title: `${actionLabel(pendingAction)} completed`,
-        description: `Order status changed to ${updated.status}.`,
+        title: `${actionLabel(pendingAction)} 완료`,
+        description: `오더 상태가 ${updated.status}(으)로 변경되었습니다.`,
         variant: "success",
       });
     } catch (error) {
-      const message = error instanceof ApiError ? error.message : "Action failed";
-      pushToast({ title: "Action failed", description: message, variant: "error" });
+      const message = error instanceof ApiError ? error.message : "작업에 실패했습니다.";
+      pushToast({ title: "처리 실패", description: message, variant: "error" });
     } finally {
       setLoading(false);
       setPendingAction(null);
@@ -109,36 +109,36 @@ export function OutboundDetailView({
 
   const itemColumns = useMemo(
     () => [
-      { key: "barcode_full", label: "barcode_full", render: (row: OutboundOrder["items"][number]) => row.barcode_full },
-      { key: "product_name", label: "product_name", render: (row: OutboundOrder["items"][number]) => row.product_name },
-      { key: "lot", label: "lot", render: (row: OutboundOrder["items"][number]) => row.lot },
-      { key: "location", label: "location", render: (row: OutboundOrder["items"][number]) => row.location },
+      { key: "barcode_full", label: "바코드", render: (row: OutboundOrder["items"][number]) => row.barcode_full },
+      { key: "product_name", label: "상품명", render: (row: OutboundOrder["items"][number]) => row.product_name },
+      { key: "lot", label: "LOT", render: (row: OutboundOrder["items"][number]) => row.lot },
+      { key: "location", label: "로케이션", render: (row: OutboundOrder["items"][number]) => row.location },
       {
         key: "requested_qty",
-        label: "requested_qty",
+        label: "요청수량",
         className: "tabular-nums",
         render: (row: OutboundOrder["items"][number]) => row.requested_qty,
       },
       {
         key: "picked_qty",
-        label: "picked_qty",
+        label: "피킹수량",
         className: "tabular-nums",
         render: (row: OutboundOrder["items"][number]) => row.picked_qty,
       },
       {
         key: "available_qty",
-        label: "available_qty",
+        label: "가용수량",
         className: "tabular-nums",
         render: (row: OutboundOrder["items"][number]) => row.available_qty,
       },
       {
         key: "status",
-        label: "status",
+        label: "상태",
         render: (row: OutboundOrder["items"][number]) =>
           row.available_qty < row.requested_qty ? (
             <Badge variant="danger" className="inline-flex items-center gap-1">
               <AlertTriangle className="h-3 w-3" />
-              Shortage
+              부족
             </Badge>
           ) : (
             <Badge variant={row.status === "picked" ? "success" : "default"}>{row.status}</Badge>
@@ -151,11 +151,11 @@ export function OutboundDetailView({
   const submitBox = async () => {
     const parsedItemCount = Number(itemCount);
     if (!boxNo.trim() || !courier.trim() || !trackingNo.trim()) {
-      setFormError("All fields are required.");
+      setFormError("모든 필드를 입력해 주세요.");
       return;
     }
     if (!Number.isFinite(parsedItemCount) || parsedItemCount < 1) {
-      setFormError("Item count must be 1 or greater.");
+      setFormError("품목 수량은 1 이상이어야 합니다.");
       return;
     }
 
@@ -174,10 +174,10 @@ export function OutboundDetailView({
       setCourier("");
       setTrackingNo("");
       setItemCount("1");
-      pushToast({ title: "Box added", variant: "success" });
+      pushToast({ title: "박스를 추가했습니다.", variant: "success" });
     } catch (error) {
-      const message = error instanceof ApiError ? error.message : "Please check input values or API status.";
-      pushToast({ title: "Failed to add box", description: message, variant: "error" });
+      const message = error instanceof ApiError ? error.message : "입력값 또는 API 상태를 확인해 주세요.";
+      pushToast({ title: "박스 추가 실패", description: message, variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -187,12 +187,12 @@ export function OutboundDetailView({
     <section>
       <PageHeader
         breadcrumbs={[
-          { label: "Operations" },
-          { label: "Outbounds", href: "/outbounds" },
+          { label: "운영" },
+          { label: "출고", href: "/outbounds" },
           { label: order.outbound_no },
         ]}
         title={order.outbound_no}
-        subtitle={`${order.client} | ETA ${order.eta_date}`}
+        subtitle={`${order.client} | 출고예정일 ${order.eta_date}`}
         rightSlot={
           <div className="flex items-center gap-2">
             <StatusBadge status={order.status} />
@@ -207,16 +207,16 @@ export function OutboundDetailView({
 
       <Tabs value={tab} onValueChange={setTabWithQuery}>
         <TabsList className="mb-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="items">Items</TabsTrigger>
-          <TabsTrigger value="boxes">Boxes</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="overview">개요</TabsTrigger>
+          <TabsTrigger value="items">품목</TabsTrigger>
+          <TabsTrigger value="boxes">박스</TabsTrigger>
+          <TabsTrigger value="timeline">이력</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="grid gap-6 md:grid-cols-3">
           <Card>
             <CardHeader>
-              <CardTitle>Client</CardTitle>
+              <CardTitle>고객사</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm font-medium">{order.client}</p>
@@ -224,7 +224,7 @@ export function OutboundDetailView({
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Shipping Address</CardTitle>
+              <CardTitle>배송지</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm">{order.ship_to}</p>
@@ -232,7 +232,7 @@ export function OutboundDetailView({
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Summary</CardTitle>
+              <CardTitle>요약</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="text-sm">{order.summary}</p>
@@ -242,29 +242,29 @@ export function OutboundDetailView({
         </TabsContent>
 
         <TabsContent value="items">
-          <DataTable rows={order.items} columns={itemColumns} emptyText="No items available." />
+          <DataTable rows={order.items} columns={itemColumns} emptyText="출고 품목이 없습니다." />
         </TabsContent>
 
         <TabsContent value="boxes">
           <div className="mb-4 flex justify-end">
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="secondary" disabled={!order.boxes_supported} title={!order.boxes_supported ? "Box API is unavailable in current backend." : undefined}>
-                  <PackagePlus className="h-4 w-4" />
-                  Add Box
-                </Button>
+              <Button variant="secondary" disabled={!order.boxes_supported} title={!order.boxes_supported ? "Box API is unavailable in current backend." : undefined}>
+                <PackagePlus className="h-4 w-4" />
+                박스 추가
+              </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Add Box</DialogTitle>
-                  <DialogDescription>Mock form with client-side validation.</DialogDescription>
+                  <DialogTitle>박스 추가</DialogTitle>
+                  <DialogDescription>입력값 검증 후 박스를 등록합니다.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-3">
-                  <Input placeholder="Box No" value={boxNo} onChange={(e) => setBoxNo(e.target.value)} />
-                  <Input placeholder="Courier" value={courier} onChange={(e) => setCourier(e.target.value)} />
-                  <Input placeholder="Tracking No" value={trackingNo} onChange={(e) => setTrackingNo(e.target.value)} />
+                  <Input placeholder="박스번호" value={boxNo} onChange={(e) => setBoxNo(e.target.value)} />
+                  <Input placeholder="택배사" value={courier} onChange={(e) => setCourier(e.target.value)} />
+                  <Input placeholder="운송장번호" value={trackingNo} onChange={(e) => setTrackingNo(e.target.value)} />
                   <Input
-                    placeholder="Item Count"
+                    placeholder="품목 수량"
                     type="number"
                     min={1}
                     value={itemCount}
@@ -274,10 +274,10 @@ export function OutboundDetailView({
                 </div>
                 <DialogFooter>
                   <Button variant="secondary" onClick={() => setDialogOpen(false)} disabled={loading}>
-                    Cancel
+                    취소
                   </Button>
                   <Button onClick={submitBox} disabled={loading}>
-                    {loading ? "Saving..." : "Save"}
+                    {loading ? "저장 중..." : "저장"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -286,28 +286,28 @@ export function OutboundDetailView({
           <DataTable
             rows={order.boxes}
             columns={[
-              { key: "box_no", label: "Box No", render: (row) => row.box_no },
-              { key: "courier", label: "Courier", render: (row) => row.courier },
-              { key: "tracking_no", label: "Tracking No", render: (row) => row.tracking_no },
+              { key: "box_no", label: "박스번호", render: (row) => row.box_no },
+              { key: "courier", label: "택배사", render: (row) => row.courier },
+              { key: "tracking_no", label: "운송장번호", render: (row) => row.tracking_no },
               {
                 key: "item_count",
-                label: "Item Count",
+                label: "품목 수량",
                 className: "tabular-nums",
                 render: (row) => row.item_count,
               },
             ]}
-            emptyText="No boxes packed yet."
+            emptyText="등록된 박스가 없습니다."
           />
           {!order.boxes_supported && (
             <p className="mt-3 text-sm text-amber-700">
-              Box API is unavailable on current backend, so box create/update is disabled.
+              현재 백엔드에서 박스 API를 지원하지 않아 박스 등록/수정이 비활성화되었습니다.
             </p>
           )}
         </TabsContent>
 
         <TabsContent value="timeline">
           {order.timeline.length === 0 ? (
-            <div className="rounded-xl border bg-white px-6 py-8 text-center text-sm text-slate-500">No timeline logs.</div>
+            <div className="rounded-xl border bg-white px-6 py-8 text-center text-sm text-slate-500">이력 로그가 없습니다.</div>
           ) : (
             <div className="rounded-xl border bg-white px-6 py-2">
               {order.timeline.map((log, idx) => (
@@ -333,17 +333,17 @@ export function OutboundDetailView({
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm {pendingAction ? actionLabel(pendingAction) : "Action"}</DialogTitle>
+            <DialogTitle>{pendingAction ? actionLabel(pendingAction) : "작업"} 확인</DialogTitle>
             <DialogDescription>
-              This changes outbound status and appends a timeline log in mock data.
+              출고 상태가 변경되고 이력 로그가 추가됩니다.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="secondary" onClick={() => setConfirmOpen(false)} disabled={loading}>
-              Cancel
+              취소
             </Button>
             <Button onClick={runStatusAction} disabled={loading || !pendingAction}>
-              {loading ? "Processing..." : "Confirm"}
+              {loading ? "처리 중..." : "확인"}
             </Button>
           </DialogFooter>
         </DialogContent>
