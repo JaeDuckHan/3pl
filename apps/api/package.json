@@ -1,0 +1,27 @@
+{
+  "name": "wms-api",
+  "version": "1.0.0",
+  "description": "Minimal WMS API server with MySQL connectivity",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "seed:billing-demo": "node scripts/seed_billing_demo.js",
+    "test:e2e:settlement": "powershell -ExecutionPolicy Bypass -File ./scripts/run_settlement_invoice_flow.ps1",
+    "test:e2e:reopen-reject": "powershell -ExecutionPolicy Bypass -File ./scripts/run_settlement_reopen_reject_flow.ps1",
+    "test:e2e:invoice-reuse": "powershell -ExecutionPolicy Bypass -File ./scripts/run_invoice_reuse_flow.ps1",
+    "test:e2e:insufficient-stock": "powershell -ExecutionPolicy Bypass -File ./scripts/run_outbound_insufficient_stock.ps1",
+    "test:e2e:outbound-detail": "powershell -ExecutionPolicy Bypass -File ./scripts/run_outbound_detail_flow.ps1",
+    "test:e2e:inbound-detail": "powershell -ExecutionPolicy Bypass -File ./scripts/run_inbound_detail_flow.ps1",
+    "test:e2e:billing-production": "powershell -ExecutionPolicy Bypass -File ./scripts/run_billing_production_flow.ps1"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.11.3",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^3.25.76"
+  }
+}

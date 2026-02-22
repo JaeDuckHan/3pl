@@ -1,0 +1,2319 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "WMS API",
+    "version": "1.0.0",
+    "description": "Minimal WMS API with Swagger UI"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3100"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Login and get JWT token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "admin.demo@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "1234"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT issued"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Service health check",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/health/db": {
+      "get": {
+        "summary": "Database health check",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "DB connected"
+          },
+          "500": {
+            "description": "DB connection failed"
+          }
+        }
+      }
+    },
+    "/product-lots": {
+      "get": {
+        "summary": "List product lots",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "product_id",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "client_id",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/product-lots/{id}": {
+      "get": {
+        "summary": "Get product lot by id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Product lot not found"
+          }
+        }
+      }
+    },
+    "/warehouses": {
+      "get": {
+        "summary": "List warehouses",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create warehouse",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code",
+                  "name",
+                  "country"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "example": "Asia/Bangkok"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "active"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "409": {
+            "description": "Duplicate code"
+          }
+        }
+      }
+    },
+    "/warehouses/{id}": {
+      "get": {
+        "summary": "Get warehouse",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update warehouse",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code",
+                  "name",
+                  "country",
+                  "timezone",
+                  "status"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "timezone": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete warehouse (soft)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "List products",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create product",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "client_id",
+                  "barcode_raw",
+                  "barcode_full",
+                  "name_kr"
+                ],
+                "properties": {
+                  "client_id": {
+                    "type": "integer"
+                  },
+                  "sku_code": {
+                    "type": "string"
+                  },
+                  "barcode_raw": {
+                    "type": "string"
+                  },
+                  "barcode_full": {
+                    "type": "string"
+                  },
+                  "name_kr": {
+                    "type": "string"
+                  },
+                  "name_en": {
+                    "type": "string"
+                  },
+                  "volume_ml": {
+                    "type": "integer"
+                  },
+                  "unit": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "active"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation/FK error"
+          },
+          "409": {
+            "description": "Duplicate barcode"
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "summary": "Get product",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update product",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "client_id",
+                  "barcode_raw",
+                  "barcode_full",
+                  "name_kr",
+                  "status"
+                ],
+                "properties": {
+                  "client_id": {
+                    "type": "integer"
+                  },
+                  "sku_code": {
+                    "type": "string"
+                  },
+                  "barcode_raw": {
+                    "type": "string"
+                  },
+                  "barcode_full": {
+                    "type": "string"
+                  },
+                  "name_kr": {
+                    "type": "string"
+                  },
+                  "name_en": {
+                    "type": "string"
+                  },
+                  "volume_ml": {
+                    "type": "integer"
+                  },
+                  "unit": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "Validation/FK error"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete product (soft)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/clients": {
+      "get": {
+        "summary": "List clients",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create client",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "client_code",
+                  "name_kr"
+                ],
+                "properties": {
+                  "client_code": {
+                    "type": "string"
+                  },
+                  "name_kr": {
+                    "type": "string"
+                  },
+                  "name_en": {
+                    "type": "string"
+                  },
+                  "contact_name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "active"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "409": {
+            "description": "Duplicate client_code"
+          }
+        }
+      }
+    },
+    "/clients/{id}": {
+      "get": {
+        "summary": "Get client",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update client",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "client_code",
+                  "name_kr",
+                  "status"
+                ],
+                "properties": {
+                  "client_code": {
+                    "type": "string"
+                  },
+                  "name_kr": {
+                    "type": "string"
+                  },
+                  "name_en": {
+                    "type": "string"
+                  },
+                  "contact_name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete client (soft)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/inbound-orders": {
+      "get": {
+        "summary": "List inbound orders",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create inbound order",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "inbound_no",
+                  "client_id",
+                  "warehouse_id",
+                  "inbound_date",
+                  "created_by"
+                ],
+                "properties": {
+                  "inbound_no": {
+                    "type": "string"
+                  },
+                  "client_id": {
+                    "type": "integer"
+                  },
+                  "warehouse_id": {
+                    "type": "integer"
+                  },
+                  "inbound_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "draft"
+                  },
+                  "memo": {
+                    "type": "string"
+                  },
+                  "created_by": {
+                    "type": "integer"
+                  },
+                  "received_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation/FK error"
+          },
+          "409": {
+            "description": "Duplicate inbound_no"
+          }
+        }
+      }
+    },
+    "/inbound-orders/{id}": {
+      "get": {
+        "summary": "Get inbound order",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update inbound order",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "inbound_no",
+                  "client_id",
+                  "warehouse_id",
+                  "inbound_date",
+                  "status",
+                  "created_by"
+                ],
+                "properties": {
+                  "inbound_no": {
+                    "type": "string"
+                  },
+                  "client_id": {
+                    "type": "integer"
+                  },
+                  "warehouse_id": {
+                    "type": "integer"
+                  },
+                  "inbound_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "memo": {
+                    "type": "string"
+                  },
+                  "created_by": {
+                    "type": "integer"
+                  },
+                  "received_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete inbound order (soft)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/inbound-items": {
+      "get": {
+        "summary": "List inbound items",
+        "parameters": [
+          {
+            "name": "inbound_order_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create inbound item",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "inbound_order_id",
+                  "product_id",
+                  "lot_id",
+                  "qty"
+                ],
+                "properties": {
+                  "inbound_order_id": {
+                    "type": "integer"
+                  },
+                  "product_id": {
+                    "type": "integer"
+                  },
+                  "lot_id": {
+                    "type": "integer"
+                  },
+                  "location_id": {
+                    "type": "integer"
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "invoice_price": {
+                    "type": "number"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "example": "THB"
+                  },
+                  "remark": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation/FK error"
+          }
+        }
+      }
+    },
+    "/inbound-items/{id}": {
+      "get": {
+        "summary": "Get inbound item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update inbound item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "inbound_order_id",
+                  "product_id",
+                  "lot_id",
+                  "qty"
+                ],
+                "properties": {
+                  "inbound_order_id": {
+                    "type": "integer"
+                  },
+                  "product_id": {
+                    "type": "integer"
+                  },
+                  "lot_id": {
+                    "type": "integer"
+                  },
+                  "location_id": {
+                    "type": "integer"
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "invoice_price": {
+                    "type": "number"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "remark": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete inbound item (soft)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/outbound-orders": {
+      "get": {
+        "summary": "List outbound orders",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create outbound order",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "outbound_no",
+                  "client_id",
+                  "warehouse_id",
+                  "order_date",
+                  "created_by"
+                ],
+                "properties": {
+                  "outbound_no": {
+                    "type": "string"
+                  },
+                  "client_id": {
+                    "type": "integer"
+                  },
+                  "warehouse_id": {
+                    "type": "integer"
+                  },
+                  "order_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "sales_channel": {
+                    "type": "string"
+                  },
+                  "order_no": {
+                    "type": "string"
+                  },
+                  "tracking_no": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "draft"
+                  },
+                  "packed_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "shipped_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "created_by": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation/FK error"
+          },
+          "409": {
+            "description": "Duplicate outbound_no"
+          }
+        }
+      }
+    },
+    "/outbound-orders/{id}": {
+      "get": {
+        "summary": "Get outbound order",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update outbound order",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "outbound_no",
+                  "client_id",
+                  "warehouse_id",
+                  "order_date",
+                  "created_by",
+                  "status"
+                ],
+                "properties": {
+                  "outbound_no": {
+                    "type": "string"
+                  },
+                  "client_id": {
+                    "type": "integer"
+                  },
+                  "warehouse_id": {
+                    "type": "integer"
+                  },
+                  "order_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "sales_channel": {
+                    "type": "string"
+                  },
+                  "order_no": {
+                    "type": "string"
+                  },
+                  "tracking_no": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "packed_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "shipped_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "created_by": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete outbound order (soft)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/outbound-items": {
+      "get": {
+        "summary": "List outbound items",
+        "parameters": [
+          {
+            "name": "outbound_order_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create outbound item",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "outbound_order_id",
+                  "product_id",
+                  "lot_id",
+                  "qty"
+                ],
+                "properties": {
+                  "outbound_order_id": {
+                    "type": "integer"
+                  },
+                  "product_id": {
+                    "type": "integer"
+                  },
+                  "lot_id": {
+                    "type": "integer"
+                  },
+                  "location_id": {
+                    "type": "integer"
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "box_type": {
+                    "type": "string"
+                  },
+                  "box_count": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "remark": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation/FK error"
+          }
+        }
+      }
+    },
+    "/outbound-items/{id}": {
+      "get": {
+        "summary": "Get outbound item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update outbound item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "outbound_order_id",
+                  "product_id",
+                  "lot_id",
+                  "qty"
+                ],
+                "properties": {
+                  "outbound_order_id": {
+                    "type": "integer"
+                  },
+                  "product_id": {
+                    "type": "integer"
+                  },
+                  "lot_id": {
+                    "type": "integer"
+                  },
+                  "location_id": {
+                    "type": "integer"
+                  },
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "box_type": {
+                    "type": "string"
+                  },
+                  "box_count": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "remark": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete outbound item (soft)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/stock-balances": {
+      "get": {
+        "summary": "List stock balances",
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "lot_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "warehouse_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "location_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/stock-transactions": {
+      "get": {
+        "summary": "List stock transactions",
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "lot_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "ref_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ref_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "txn_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/return-orders": {
+      "get": {
+        "summary": "List return orders",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create return order",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "return_no",
+                  "client_id",
+                  "warehouse_id",
+                  "return_date",
+                  "created_by"
+                ],
+                "properties": {
+                  "return_no": {
+                    "type": "string"
+                  },
+                  "client_id": {
+                    "type": "integer"
+                  },
+                  "warehouse_id": {
+                    "type": "integer"
+                  },
+                  "related_outbound_order_id": {
+                    "type": "integer"
+                  },
+                  "return_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "draft"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "created_by": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation/FK error"
+          },
+          "409": {
+            "description": "Duplicate return_no"
+          }
+        }
+      }
+    },
+    "/return-orders/{id}": {
+      "get": {
+        "summary": "Get return order",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update return order",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "return_no",
+                  "client_id",
+                  "warehouse_id",
+                  "return_date",
+                  "status",
+                  "created_by"
+                ],
+                "properties": {
+                  "return_no": {
+                    "type": "string"
+                  },
+                  "client_id": {
+                    "type": "integer"
+                  },
+                  "warehouse_id": {
+                    "type": "integer"
+                  },
+                  "related_outbound_order_id": {
+                    "type": "integer"
+                  },
+                  "return_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "created_by": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete return order (soft)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/return-items": {
+      "get": {
+        "summary": "List return items",
+        "parameters": [
+          {
+            "name": "return_order_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create return item",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "return_order_id",
+                  "product_id",
+                  "lot_id",
+                  "qty_received"
+                ],
+                "properties": {
+                  "return_order_id": {
+                    "type": "integer"
+                  },
+                  "product_id": {
+                    "type": "integer"
+                  },
+                  "lot_id": {
+                    "type": "integer"
+                  },
+                  "location_id": {
+                    "type": "integer"
+                  },
+                  "qty_received": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "qty_restocked": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "qty_disposed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "disposition_reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Validation/FK error"
+          }
+        }
+      }
+    },
+    "/return-items/{id}": {
+      "get": {
+        "summary": "Get return item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update return item",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "return_order_id",
+                  "product_id",
+                  "lot_id",
+                  "qty_received"
+                ],
+                "properties": {
+                  "return_order_id": {
+                    "type": "integer"
+                  },
+                  "product_id": {
+                    "type": "integer"
+                  },
+                  "lot_id": {
+                    "type": "integer"
+                  },
+                  "location_id": {
+                    "type": "integer"
+                  },
+                  "qty_received": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "qty_restocked": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "qty_disposed": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "disposition_reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete return item (soft)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/service-events": {
+      "get": {
+        "summary": "List service events",
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "outbound_order_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "stock_transaction_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "source_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/settlement-batches/generate": {
+      "post": {
+        "summary": "Generate settlement batch from service events",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "client_id",
+                  "billing_month",
+                  "created_by"
+                ],
+                "properties": {
+                  "client_id": {
+                    "type": "integer"
+                  },
+                  "billing_month": {
+                    "type": "string",
+                    "example": "2026-02"
+                  },
+                  "created_by": {
+                    "type": "integer"
+                  },
+                  "exchange_rate_id": {
+                    "type": "integer"
+                  },
+                  "is_provisional": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generated"
+          },
+          "400": {
+            "description": "Invalid payload / FX not found"
+          }
+        }
+      }
+    },
+    "/settlement-batches/{id}": {
+      "get": {
+        "summary": "Get settlement batch with lines",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/invoices/issue": {
+      "post": {
+        "summary": "Issue invoice from settlement batch",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "settlement_batch_id",
+                  "issue_date",
+                  "due_date",
+                  "created_by"
+                ],
+                "properties": {
+                  "settlement_batch_id": {
+                    "type": "integer"
+                  },
+                  "issue_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "due_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "recipient_email": {
+                    "type": "string"
+                  },
+                  "created_by": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Issued or reused existing invoice"
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/invoices/{id}": {
+      "get": {
+        "summary": "Get invoice with lines",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/settlement-batches/{id}/close": {
+      "post": {
+        "summary": "Close settlement batch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "closed_by"
+                ],
+                "properties": {
+                  "closed_by": {
+                    "type": "integer"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Closed"
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/settlement-batches/{id}/reopen-requests": {
+      "get": {
+        "summary": "List reopen requests by batch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create reopen request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "requested_by",
+                  "reason"
+                ],
+                "properties": {
+                  "requested_by": {
+                    "type": "integer"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Requested"
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/settlement-reopen-requests/{id}/approve": {
+      "post": {
+        "summary": "Approve reopen request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "approved_by"
+                ],
+                "properties": {
+                  "approved_by": {
+                    "type": "integer"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Approved"
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/settlement-reopen-requests/{id}/reject": {
+      "post": {
+        "summary": "Reject reopen request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "approved_by"
+                ],
+                "properties": {
+                  "approved_by": {
+                    "type": "integer"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rejected"
+          },
+          "400": {
+            "description": "Invalid status"
+          }
+        }
+      }
+    },
+    "/settlement-batches/{id}/reopen-logs": {
+      "get": {
+        "summary": "List reopen logs by batch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}

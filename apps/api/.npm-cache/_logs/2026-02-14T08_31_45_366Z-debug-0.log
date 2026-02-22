@@ -1,0 +1,74 @@
+0 verbose cli D:\node\node.exe D:\node\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.6.2
+2 info using node@v24.12.0
+3 silly config load:file:D:\node\node_modules\npm\npmrc
+4 silly config load:file:D:\_작업폴더_codex\wms-api\.npmrc
+5 silly config load:file:C:\Users\Kowinsblue\.npmrc
+6 silly config load:file:C:\Users\Kowinsblue\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install
+8 verbose argv "install" "--cache" ".npm-cache"
+9 verbose logfile logs-max:10 dir:D:\_작업폴더_codex\wms-api\.npm-cache\_logs\2026-02-14T08_31_45_366Z-
+10 verbose logfile D:\_작업폴더_codex\wms-api\.npm-cache\_logs\2026-02-14T08_31_45_366Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 silly idealTree buildDeps
+14 silly fetch manifest dotenv@^16.4.5
+15 silly packumentCache full:https://registry.npmjs.org/dotenv cache-miss
+16 http fetch GET https://registry.npmjs.org/npm attempt 1 failed with EACCES
+17 http fetch GET https://registry.npmjs.org/dotenv attempt 1 failed with EACCES
+18 http fetch GET https://registry.npmjs.org/npm attempt 2 failed with EACCES
+19 http fetch GET https://registry.npmjs.org/dotenv attempt 2 failed with EACCES
+20 http fetch GET https://registry.npmjs.org/npm attempt 3 failed with EACCES
+21 http fetch GET https://registry.npmjs.org/dotenv attempt 3 failed with EACCES
+22 silly fetch manifest express@^4.21.2
+23 silly packumentCache full:https://registry.npmjs.org/express cache-miss
+24 http fetch GET https://registry.npmjs.org/express attempt 1 failed with EACCES
+25 http fetch GET https://registry.npmjs.org/express attempt 2 failed with EACCES
+26 http fetch GET https://registry.npmjs.org/express attempt 3 failed with EACCES
+27 silly fetch manifest mysql2@^3.11.3
+28 silly packumentCache full:https://registry.npmjs.org/mysql2 cache-miss
+29 http fetch GET https://registry.npmjs.org/mysql2 attempt 1 failed with EACCES
+30 http fetch GET https://registry.npmjs.org/mysql2 attempt 2 failed with EACCES
+31 http fetch GET https://registry.npmjs.org/mysql2 attempt 3 failed with EACCES
+32 silly placeDep ROOT dotenv@ OK for: wms-api@1.0.0 want: ^16.4.5
+33 silly placeDep ROOT express@ OK for: wms-api@1.0.0 want: ^4.21.2
+34 silly placeDep ROOT mysql2@ OK for: wms-api@1.0.0 want: ^3.11.3
+35 verbose type system
+36 verbose stack FetchError: request to https://registry.npmjs.org/dotenv failed, reason: 
+36 verbose stack     at ClientRequest.<anonymous> (D:\node\node_modules\npm\node_modules\minipass-fetch\lib\index.js:130:14)
+36 verbose stack     at ClientRequest.emit (node:events:508:28)
+36 verbose stack     at emitErrorEvent (node:_http_client:108:11)
+36 verbose stack     at _destroy (node:_http_client:962:9)
+36 verbose stack     at onSocketNT (node:_http_client:982:5)
+36 verbose stack     at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+37 error code EACCES
+38 error errno EACCES
+39 error FetchError: request to https://registry.npmjs.org/dotenv failed, reason: 
+39 error     at ClientRequest.<anonymous> (D:\node\node_modules\npm\node_modules\minipass-fetch\lib\index.js:130:14)
+39 error     at ClientRequest.emit (node:events:508:28)
+39 error     at emitErrorEvent (node:_http_client:108:11)
+39 error     at _destroy (node:_http_client:962:9)
+39 error     at onSocketNT (node:_http_client:982:5)
+39 error     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+39 error   code: 'EACCES',
+39 error   errno: 'EACCES',
+39 error   type: 'system',
+39 error   requiredBy: '.'
+39 error }
+40 error
+40 error The operation was rejected by your operating system.
+40 error It's possible that the file was already in use (by a text editor or antivirus),
+40 error or that you lack permissions to access it.
+40 error
+40 error If you believe this might be a permissions issue, please double-check the
+40 error permissions of the file and its containing directories, or try running
+40 error the command again as root/Administrator.
+41 silly unfinished npm timer reify 1771057905896
+42 silly unfinished npm timer reify:loadTrees 1771057905896
+43 verbose cwd D:\_작업폴더_codex\wms-api
+44 verbose os Windows_NT 10.0.22631
+45 verbose node v24.12.0
+46 verbose npm  v11.6.2
+47 verbose exit 1
+48 verbose code 1
+49 error A complete log of this run can be found in: D:\_작업폴더_codex\wms-api\.npm-cache\_logs\2026-02-14T08_31_45_366Z-debug-0.log
