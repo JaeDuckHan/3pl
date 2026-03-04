@@ -25,6 +25,11 @@ type FormState = {
   client_code: string;
   barcode_raw: string;
   name: string;
+  width_cm: string;
+  length_cm: string;
+  height_cm: string;
+  cbm_m3: string;
+  min_storage_fee_month: string;
   status: ProductStatus;
 };
 
@@ -35,8 +40,44 @@ const initialForm: FormState = {
   client_code: "",
   barcode_raw: "",
   name: "",
+  width_cm: "",
+  length_cm: "",
+  height_cm: "",
+  cbm_m3: "",
+  min_storage_fee_month: "",
   status: "active",
 };
+
+function normalizeDecimalInput(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed < 0) return "";
+  return String(parsed);
+}
+
+function parseOptionalPositiveDecimal(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
+function parseOptionalNonNegativeDecimal(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed) || parsed < 0) return null;
+  return parsed;
+}
+
+function computeCbmM3(widthCm: number | null, lengthCm: number | null, heightCm: number | null) {
+  if (!(widthCm && widthCm > 0) || !(lengthCm && lengthCm > 0) || !(heightCm && heightCm > 0)) {
+    return null;
+  }
+  return Number(((widthCm * lengthCm * heightCm) / 1000000).toFixed(6));
+}
 
 export function ProductsSettingsPage() {
   const { pushToast } = useToast();
@@ -76,6 +117,10 @@ export function ProductsSettingsPage() {
     () => buildBarcodeFull(form.client_code, form.barcode_raw),
     [form.client_code, form.barcode_raw]
   );
+  const widthCm = useMemo(() => parseOptionalPositiveDecimal(form.width_cm), [form.width_cm]);
+  const lengthCm = useMemo(() => parseOptionalPositiveDecimal(form.length_cm), [form.length_cm]);
+  const heightCm = useMemo(() => parseOptionalPositiveDecimal(form.height_cm), [form.height_cm]);
+  const cbmPreview = useMemo(() => computeCbmM3(widthCm, lengthCm, heightCm), [heightCm, lengthCm, widthCm]);
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -111,6 +156,11 @@ export function ProductsSettingsPage() {
       client_code: row.client_code,
       barcode_raw: row.barcode_raw,
       name: row.name,
+      width_cm: row.width_cm == null ? "" : String(row.width_cm),
+      length_cm: row.length_cm == null ? "" : String(row.length_cm),
+      height_cm: row.height_cm == null ? "" : String(row.height_cm),
+      cbm_m3: row.cbm_m3 == null ? "" : String(row.cbm_m3),
+      min_storage_fee_month: row.min_storage_fee_month == null ? "" : String(row.min_storage_fee_month),
       status: row.status,
     });
     setFieldError(null);
@@ -130,12 +180,23 @@ export function ProductsSettingsPage() {
 
     setFieldError(null);
     setSaving(true);
+    const payload = {
+      client_code: form.client_code.trim().toUpperCase(),
+      barcode_raw: form.barcode_raw.trim(),
+      name: form.name.trim(),
+      width_cm: parseOptionalPositiveDecimal(form.width_cm),
+      length_cm: parseOptionalPositiveDecimal(form.length_cm),
+      height_cm: parseOptionalPositiveDecimal(form.height_cm),
+      cbm_m3: parseOptionalPositiveDecimal(form.cbm_m3),
+      min_storage_fee_month: parseOptionalNonNegativeDecimal(form.min_storage_fee_month),
+      status: form.status,
+    };
     try {
       if (editingId) {
-        await updateProduct(editingId, form);
+        await updateProduct(editingId, payload);
         pushToast({ title: "Product updated", variant: "success" });
       } else {
-        await createProduct(form);
+        await createProduct(payload);
         pushToast({ title: "Product created", variant: "success" });
       }
       await loadRows();
@@ -222,6 +283,8 @@ export function ProductsSettingsPage() {
             { key: "barcode_raw", label: "Barcode Raw", render: (row) => row.barcode_raw },
             { key: "barcode_full", label: "Barcode Full", render: (row) => row.barcode_full },
             { key: "name", label: "Name", render: (row) => row.name },
+            { key: "cbm_m3", label: "CBM(m³)", render: (row) => row.cbm_m3 == null ? "-" : Number(row.cbm_m3).toFixed(6) },
+            { key: "min_storage_fee_month", label: "Min Fee/Month", render: (row) => Number(row.min_storage_fee_month || 0).toLocaleString() },
             { key: "status", label: "Status", render: (row) => <ActiveStatusBadge status={row.status} /> },
             {
               key: "actions",
@@ -259,6 +322,51 @@ export function ProductsSettingsPage() {
                   <option key={code} value={code} />
                 ))}
               </datalist>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">Width (cm)</label>
+              <Input
+                value={form.width_cm}
+                onChange={(e) => setForm((prev) => ({ ...prev, width_cm: normalizeDecimalInput(e.target.value) }))}
+                inputMode="decimal"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">Length (cm)</label>
+              <Input
+                value={form.length_cm}
+                onChange={(e) => setForm((prev) => ({ ...prev, length_cm: normalizeDecimalInput(e.target.value) }))}
+                inputMode="decimal"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">Height (cm)</label>
+              <Input
+                value={form.height_cm}
+                onChange={(e) => setForm((prev) => ({ ...prev, height_cm: normalizeDecimalInput(e.target.value) }))}
+                inputMode="decimal"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">Min Storage Fee / Month</label>
+              <Input
+                value={form.min_storage_fee_month}
+                onChange={(e) => setForm((prev) => ({ ...prev, min_storage_fee_month: normalizeDecimalInput(e.target.value) }))}
+                inputMode="decimal"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">CBM (m³) - Optional Manual</label>
+              <Input
+                value={form.cbm_m3}
+                onChange={(e) => setForm((prev) => ({ ...prev, cbm_m3: normalizeDecimalInput(e.target.value) }))}
+                inputMode="decimal"
+                placeholder="Leave blank for auto by dimensions"
+              />
+            </div>
+            <div className="rounded-md border bg-slate-50 px-3 py-2 text-sm">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">CBM (Auto Preview)</p>
+              <p className="mt-1 font-mono text-slate-700">{cbmPreview == null ? "-" : cbmPreview.toFixed(6)}</p>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-600">Barcode Raw</label>
